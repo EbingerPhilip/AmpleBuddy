@@ -1,6 +1,8 @@
 import express = require("express");
 import path = require("path");
 import cors =require("cors");
+const TestUser2 = require("./testUser2");
+
 
 const app = express();
 app.use(cors());          // <-- ALLOWS FRONTEND ACCESS
@@ -25,8 +27,19 @@ app.get("/test/user", (_req, res) => {
     ],
   }
 
+
 res.status(200).json(TestUser)
 });
+
+app.get("/test/user2", (_req, res) => {
+  res.status(200).json(TestUser2);
+});
+
+app.get("/test/user2/contactCount", (_req, res) => {
+  const contactCount = TestUser2.getContactCount();
+  res.status(200).json({ ...TestUser2, contactCount });
+});
+
 
 
 app.listen(PORT, () => {

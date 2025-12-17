@@ -7,10 +7,10 @@
     "types": ["node"],
     "skipLibCheck": true,
 
-    /* Bundler mode */
-    "moduleResolution": "bundler",
+    /* Module Resolution */
+    "moduleResolution": "Node", // Verwende "Node" für Node.js-spezifische Module
     "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": true, // Behalte die ESM-Syntax bei
     "moduleDetection": "force",
     "noEmit": true,
 
@@ -22,5 +22,10 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "vite.config.ts",
+    "server.ts", // Füge weitere Node-Dateien hinzu
+    "testUser.ts",
+    "testUser2.ts"
+  ]
 }

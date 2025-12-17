@@ -3,9 +3,10 @@ import React, { useEffect, useState } from "react";
 import type { Contact, User } from "../types";
 
 const Homepage: React.FC = () => {
-  const [contacts, setContacts] = useState<Contact[]>([]);  
-  const [loading, setLoading] = useState<boolean>(true);  
-  const [error, setError] = useState<string | null>(null); 
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [contactCount, setContactCount] = useState<number>(0); // Neuer State für contactCount
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   //trigger data Fetching after rendering
   useEffect(() => {
@@ -18,16 +19,18 @@ const Homepage: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        const response = await fetch("http://localhost:3000/test/user", { signal });
+        // Verwende den neuen Endpunkt
+        const response = await fetch("http://localhost:3000/test/user2/contactCount", { signal });
 
         if (!response.ok) {
           throw new Error(`Server responded with ${response.status}`);
         }
-        //convert json to usable Datatype
-        const data = (await response.json()) as User;
 
-        
+        // Erweitere den Typ, um contactCount zu berücksichtigen
+        const data = (await response.json()) as User & { contactCount: number };
+
         setContacts(data.Contacts);
+        setContactCount(data.contactCount); // contactCount setzen
       } catch (err) {
         if ((err as DOMException).name === "AbortError") {
           // fetch was aborted — ignore
@@ -54,6 +57,7 @@ const Homepage: React.FC = () => {
   return (
     <div>
       <h2>Contacts</h2>
+      <p>Total Contacts, served via module: {contactCount}</p> {/* contactCount anzeigen */}
       <ul>
         {contacts.map(c => (
           <li key={c.userid}>
