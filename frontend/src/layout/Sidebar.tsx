@@ -1,0 +1,53 @@
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../state/AuthContext";
+import { FiUser, FiHome, FiLogOut } from "react-icons/fi";
+
+export default function Sidebar() {
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+
+    function onLogout() {
+        logout();
+        navigate("/login", { replace: true });
+    }
+
+    return (
+        <nav className="sidebar" aria-label="Sidebar navigation">
+            <div className="sidebar-inner">
+                <div className="sidebar-top">
+                    <NavLink
+                        to="/profile"
+                        className={({ isActive }) =>
+                            isActive ? "sidebar-icon active" : "sidebar-icon"
+                        }
+                        aria-label="View profile"
+                        title="Profile"
+                    >
+                        <FiUser aria-hidden="true" />
+                    </NavLink>
+
+                    <NavLink
+                        to="/home"
+                        className={({ isActive }) =>
+                            isActive ? "sidebar-icon active" : "sidebar-icon"
+                        }
+                        aria-label="Home"
+                        title="Home"
+                    >
+                        <FiHome aria-hidden="true" />
+                    </NavLink>
+                </div>
+
+                <button
+                    type="button"
+                    className="sidebar-icon sidebar-logout"
+                    onClick={onLogout}
+                    aria-label="Log out"
+                    title="Log out"
+                >
+                    <FiLogOut aria-hidden="true" />
+                </button>
+            </div>
+        </nav>
+    );
+}

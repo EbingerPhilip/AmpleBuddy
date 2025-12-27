@@ -1,16 +1,20 @@
 import express = require("express");
 import path = require("path");
 import cors =require("cors");
+import {registerSystemRoutes} from "./system";
+import {registerUserRoutes} from "./UserCalls";
 
 const app = express();
 app.use(cors());          // <-- ALLOWS FRONTEND ACCESS
 app.use(express.json());
 const PORT = 3000;
 
-app.use(express.static(path.join(__dirname, "../frontend")));
+const frontendPath = path.join(__dirname, "../../frontend/dist");
+
+app.use(express.static(frontendPath));
 
 app.get("/", (_req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+    res.sendFile(path.join(frontendPath, "index.html"));
 });
 
 app.get("/test/user", (_req, res) => {
@@ -28,6 +32,8 @@ app.get("/test/user", (_req, res) => {
 res.status(200).json(TestUser)
 });
 
+registerSystemRoutes(app);
+registerUserRoutes(app);
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
