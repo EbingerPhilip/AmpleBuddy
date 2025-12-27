@@ -1,10 +1,12 @@
 import express = require("express");
 import path = require("path");
+import dotenv = require("dotenv");
 import cors =require("cors");
-const TestUser2 = require("./testUser2");
+const db = require("./config/db");
 
 
 const app = express();
+dotenv.config();
 app.use(cors());          // <-- ALLOWS FRONTEND ACCESS
 app.use(express.json());
 const PORT = 3000;
@@ -29,16 +31,14 @@ app.get("/test/user", (_req, res) => {
 
 
 res.status(200).json(TestUser)
-});
 
-app.get("/test/user2", (_req, res) => {
-  res.status(200).json(TestUser2);
 });
-
-app.get("/test/user2/contactCount", (_req, res) => {
-  const contactCount = TestUser2.getContactCount();
-  res.status(200).json({ ...TestUser2, contactCount });
-});
+// this is for testing and to teach you guys how to use the database connection
+app.get("/test/login", async(_req, res) => {
+const sql = 'Select * from users where userid = ?'; //regular sql syntax, but all variables are Replaced wit ? this is safer 
+const adminuser = await db.execute(sql,[1])         // include an Array of all variables in the order as they appear in the statment 
+res.status(200).json(adminuser[0])                  //the execute function allway returns an Array, your values are always [0] do not send metadata
+})
 
 
 
