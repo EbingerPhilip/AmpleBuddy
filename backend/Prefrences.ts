@@ -1,3 +1,5 @@
+import {EPronouns} from "./User";
+
 class Prefrences{
     private userID: number;
     private age: Date = new Date(1900,1,1);    // Unix Epoch: 1 January 1970
