@@ -1,4 +1,4 @@
-import {EPronouns} from "./User";
+import {EPronouns} from "./user";
 
 class Prefrences{
     private userID: number;

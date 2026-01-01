@@ -1,0 +1,89 @@
+You might constantly get problems from the imports from "react-router-dom". That's a lib that allows React to have multiple pages without reloading the browser everytime.
+For it, do:
+npm install react-router-dom
+npm install -D @types/react-router-dom
+
+Now to run this entire thang, open the frontend in the terminal, and go:
+npm run build
+
+That should create a dist/ directory with the index.html in it.
+Then you can start the server and see if it works (it should !).
+
+For the JWT, you need to do:
+npm install jsonwebtoken
+npm install -D @types/jsonwebtoken
+
+For the sidebar, I'm using react-icons, so:
+npm install react-icons
+
+
+
+paste this as your vite.config.ts:
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [
+    react({
+      babel: {
+        plugins: [['babel-plugin-react-compiler']],
+      },
+    }),
+  ],
+  server: {
+    port: 4000, // <-- set your desired port here
+    proxy: {
+        "/api" : {
+            target: "http://localhost:3000",
+            changeOrigin: true,
+        }
+    }
+  }
+})
+
+
+tsconfig.json:
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    // File Layout
+
+    // Environment Settings
+    // See also https://aka.ms/tsconfig/module
+    "module": "nodenext",
+    "target": "esnext",
+    "types": [],
+    // For nodejs:
+    // "lib": ["esnext"],
+    // "types": ["node"],
+    // and npm install -D @types/node
+
+    // Other Outputs
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Stricter Typechecking Options
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    // Style Options
+    // "noImplicitReturns": true,
+    // "noImplicitOverride": true,
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    // "noFallthroughCasesInSwitch": true,
+    // "noPropertyAccessFromIndexSignature": true,
+
+    // Recommended Options
+    "strict": true,
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": false,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true
+  }
+}

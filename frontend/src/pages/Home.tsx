@@ -1,72 +1,102 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../state/AuthContext";
+import { apiGetMyChats, type Chat } from "../services/apiUser.ts";
 
-import type { Contact, User } from "../types";
+function getChatDisplayName(chat: Chat, currentUserId: number): string {
+    // For 1–1 chats: name is the other user
+    const other = chat.members.find((m) => m.userId !== currentUserId);
+    if (other) return other.nickname || other.username;
 
-const Homepage: React.FC = () => {
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [contactCount, setContactCount] = useState<number>(0); // Neuer State für contactCount
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+    // Fallback (shouldn't happen for 1–1)
+    return "Chat";
+}
 
-  //trigger data Fetching after rendering
-  useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
+export default function HomePage() {
+    const { userId } = useAuth();
+    const [chats, setChats] = useState<Chat[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    //fetch Data from backend 
-    async function fetchContacts() {
-      try {
-        setLoading(true);
-        setError(null);
+    useEffect(() => {
+        let active = true;
 
-        // Verwende den neuen Endpunkt
-        const response = await fetch("http://localhost:3000/test/user2/contactCount", { signal });
-
-        if (!response.ok) {
-          throw new Error(`Server responded with ${response.status}`);
+        async function load() {
+            setLoading(true);
+            setError(null);
+            try {
+                const data = await apiGetMyChats();
+                if (!active) return;
+                setChats(data.chats);
+            } catch (err) {
+                if (!active) return;
+                setError(err instanceof Error ? err.message : "Failed to load chats.");
+            } finally {
+                if (active) setLoading(false);
+            }
         }
 
-        // Erweitere den Typ, um contactCount zu berücksichtigen
-        const data = (await response.json()) as User & { contactCount: number };
+        load();
+        return () => {
+            active = false;
+        };
+    }, []);
 
-        setContacts(data.Contacts);
-        setContactCount(data.contactCount); // contactCount setzen
-      } catch (err) {
-        if ((err as DOMException).name === "AbortError") {
-          // fetch was aborted — ignore
-          return;
-        }
-        console.error("Failed to fetch contacts:", err);
-        setError((err as Error).message || "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-    }
+    const chatItems = useMemo(() => {
+        if (!userId) return [];
+        return chats.map((c) => ({
+            chatId: c.chatId,
+            title: getChatDisplayName(c, userId),
+            last: c.lastMessage?.content ?? "No messages yet.",
+        }));
+    }, [chats, userId]);
 
-    fetchContacts();
+    return (
+        <section className="page page-wide">
+            <h1>Home</h1>
 
-    // cleanup: cancel the fetch if component unmounts
-    return () => {
-      controller.abort();
-    };
-  }, []); // empty dependency array => run once on mount
+            <div className="home-columns" aria-label="Home content">
+                <div className="home-column home-column--news" aria-label="About AmpleBuddy">
+                    <h2>About AmpleBuddy</h2>
+                    <p>
+                        AmpleBuddy is a wellbeing companion. You can track your mood, chat, and review your progress.
+                    </p>
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div style={{ color: "red" }}>Error: {error}</div>;
+                    <h2>News</h2>
+                    <ul>
+                        <li>Chats now load from the backend (temporary data).</li>
+                        <li>Next: daily mood prompt after login.</li>
+                    </ul>
+                </div>
 
-  return (
-    <div>
-      <h2>Contacts</h2>
-      <p>Total Contacts, served via module: {contactCount}</p> {/* contactCount anzeigen */}
-      <ul>
-        {contacts.map(c => (
-          <li key={c.userid}>
-            <strong>{c.nickname}</strong> ({c.username}) — id: {c.userid}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
+                <div className="home-column home-column--chats" aria-label="Your chats">
+                    <h2>Your chats</h2>
 
-export default Homepage;
+                    {error && (
+                        <p role="alert" className="error">
+                            {error}
+                        </p>
+                    )}
+
+                    {loading ? (
+                        <p>Loading chats…</p>
+                    ) : chatItems.length === 0 ? (
+                        <p>No chats yet.</p>
+                    ) : (
+                        <ul className="chat-list">
+                            {chatItems.map((c) => (
+                                <li key={c.chatId} className="chat-item">
+                                    <h3 className="chat-title">{c.title}</h3>
+                                    <p className="chat-snippet">{c.last}</p>
+                                    <Link to={`/chat/${c.chatId}`} className="chat-open">
+                                        Open chat
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            </div>
+        </section>
+    );
+}

@@ -1,0 +1,228 @@
+/* ===== Base reset ===== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+    sans-serif;
+    background-color: #f6f7f9;
+    color: #222;
+    line-height: 1.5;
+}
+
+/* ===== Page layout ===== */
+.page {
+    max-width: 420px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.page-wide {
+    max-width: 100%;
+}
+
+/* ===== Headings ===== */
+h1 {
+    margin-bottom: 1rem;
+}
+
+/* ===== Forms ===== */
+.form-group {
+    margin-top: 1rem;
+}
+
+label {
+    font-weight: 600;
+    display: block;
+}
+
+input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    font-size: 1rem;
+}
+
+input:focus {
+    outline: 3px solid #6b9cff;
+    outline-offset: 1px;
+}
+
+/* ===== Buttons ===== */
+button {
+    margin-top: 1rem;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ===== Links ===== */
+a {
+    color: #0645ad;
+}
+
+a:focus {
+    outline: 3px solid #6b9cff;
+    outline-offset: 2px;
+}
+
+/* ===== Accessibility ===== */
+.error {
+    color: crimson;
+}
+
+select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    font-size: 1rem;
+}
+
+select:focus {
+    outline: 3px solid #6b9cff;
+    outline-offset: 1px;
+}
+/* ===== Authenticated layout with overlay sidebar ===== */
+.authed-layout {
+    position: relative;
+    min-height: 100vh;
+}
+/* ===== Thin overlay sidebar ===== */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 72px;            /* thin bar */
+    height: 100vh;
+    background: #ffffff;
+    border-right: 1px solid #ddd;
+    z-index: 1000;
+}
+
+.sidebar-inner {
+    height: 100%;
+    padding: 0.75rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sidebar-top {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Circular buttons/links */
+.sidebar-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    display: grid;
+    place-items: center;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.sidebar-icon:focus {
+    outline: 3px solid #6b9cff;
+    outline-offset: 2px;
+}
+
+.sidebar-icon.active {
+    font-weight: 700;
+}
+
+.sidebar-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Logout pinned to bottom */
+.sidebar-logout {
+    margin-top: auto;
+}
+
+.authed-content {
+    margin-left: 72px;
+    padding: 0.5rem 0;
+}
+
+@media (max-width: 900px) {
+    .authed-content {
+        margin-left: 72px;
+    }
+}
+
+
+.home-column {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    padding: 1rem;
+}
+
+.home-columns {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.home-column--news {
+    flex: 1 1 auto;
+    min-width: 280px;
+}
+
+
+.home-column--chats {
+    flex: 0 0 clamp(320px, 32vw, 420px);
+    margin-left: auto;
+}
+
+/* Responsive fallback */
+@media (max-width: 900px) {
+    .home-columns {
+        flex-direction: column;
+    }
+
+    .home-column--chats {
+        flex: 1 1 auto;
+        width: 100%;
+        margin-left: 0;
+    }
+}
+
+/* Chats list */
+.chat-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.chat-item {
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+}
+
+.chat-title {
+    margin: 0 0 0.25rem 0;
+}
+
+.chat-snippet {
+    margin: 0 0 0.5rem 0;
+}

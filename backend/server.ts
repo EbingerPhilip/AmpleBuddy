@@ -1,20 +1,20 @@
 import express = require("express");
 import path = require("path");
-import dotenv = require("dotenv");
 import cors =require("cors");
-const db = require("./config/db");
-
+import {registerSystemRoutes} from "./server/apiAuth";
+import {registerUserRoutes} from "./server/apiUser";
 
 const app = express();
-dotenv.config();
 app.use(cors());          // <-- ALLOWS FRONTEND ACCESS
 app.use(express.json());
 const PORT = 3000;
 
-app.use(express.static(path.join(__dirname, "../frontend")));
+const frontendPath = path.join(__dirname, "../frontend/dist");
+
+app.use(express.static(frontendPath));
 
 app.get("/", (_req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+    res.sendFile(path.join(frontendPath, "index.html"));
 });
 
 app.get("/test/user", (_req, res) => {
@@ -29,18 +29,11 @@ app.get("/test/user", (_req, res) => {
     ],
   }
 
-
 res.status(200).json(TestUser)
-
 });
-// this is for testing and to teach you guys how to use the database connection
-app.get("/test/login", async(_req, res) => {
-const sql = 'Select * from users where userid = ?'; //regular sql syntax, but all variables are Replaced wit ? this is safer 
-const adminuser = await db.execute(sql,[1])         // include an Array of all variables in the order as they appear in the statment 
-res.status(200).json(adminuser[0])                  //the execute function allway returns an Array, your values are always [0] do not send metadata
-})
 
-
+registerSystemRoutes(app);
+registerUserRoutes(app);
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
