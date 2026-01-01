@@ -2,7 +2,7 @@
   "name": "amplebuddy",
   "version": "1.0.0",
   "description": "",
-  "main": "backend/server/server.ts",
+  "main": "backend/server.ts",
   "scripts": {
     "dev:backend": "cd backend && npx ts-node server.ts",
     "dev:frontend": "cd frontend && npm run dev",

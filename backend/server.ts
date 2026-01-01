@@ -1,8 +1,8 @@
 import express = require("express");
 import path = require("path");
 import cors =require("cors");
-import {registerSystemRoutes} from "./system";
-import {registerUserRoutes} from "./UserCalls";
+import {registerSystemRoutes} from "./server/apiAuth";
+import {registerUserRoutes} from "./server/apiUser";
 
 const app = express();
 app.use(cors());          // <-- ALLOWS FRONTEND ACCESS
