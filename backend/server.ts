@@ -9,7 +9,7 @@ app.use(cors());          // <-- ALLOWS FRONTEND ACCESS
 app.use(express.json());
 const PORT = 3000;
 
-const frontendPath = path.join(__dirname, "../../frontend/dist");
+const frontendPath = path.join(__dirname, "../frontend/dist");
 
 app.use(express.static(frontendPath));
 
