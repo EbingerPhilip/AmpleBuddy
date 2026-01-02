@@ -1,14 +1,14 @@
-const { Message } = require("./message");
-
-class Chat {
+// Divergence from class diagram: messageIds rather than Message-objects are stored in Chat
+// this provides more efficent storage, better seperation of concerns and avoids issues with edited messages
+export class Chat {
     chatid: number;
-    Members: number[];
-    Chatlog: any[];
+    members: number[];
+    messageIds: number[];
 
-    constructor(chatid: number, Members: number[]) {
+    constructor(chatid: number, members: number[], messageIds: number[] = []) {
         this.chatid = chatid;
-        this.Members = Members;
-        this.Chatlog = [];
+        this.members = members;
+        this.messageIds = messageIds;
     }
 }
 

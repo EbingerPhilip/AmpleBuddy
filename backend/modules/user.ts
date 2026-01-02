@@ -1,55 +1,71 @@
+export enum EDailyMood {
+  green = 'green',
+  yellow = 'yellow',
+  red = 'red',
+  gray = 'gray'
+}
 
-const { Chat } = require("./chat");
-const { Message } = require("./message");
-const pool = require('./db');
+export enum ETheme {
+  light = 'light',
+  dark = 'dark',
+  moody = 'moody'
+  // fucking vampire
+}
 
-class User {
-    userid: number;
+export enum EPronouns {
+  heHim = 'he/him',
+  sheHer = 'she/her',
+  theyThem = 'they/them',
+  hidden = 'hidden'
+}
 
-    constructor(userid: number) {
-        this.userid = userid;
+export class User {
+  userid: number;
+  username: string;
+  password: string;
+  nicknames: string;
+  dailyMood: EDailyMood;
+  dateOfBirth: Date | null;
+  theme: ETheme;
+  pronouns: EPronouns;
+  instantBuddy: boolean;
+
+  constructor(
+    userid: number,
+    username: string,
+    password: string,
+    nicknames: string,
+    dailyMood: EDailyMood = EDailyMood.gray,
+    dateOfBirth: Date | null = null,
+    theme: ETheme = ETheme.light,
+    pronouns: EPronouns = EPronouns.hidden,
+    instantBuddy: boolean = false
+  ) {
+    this.userid = userid;
+    this.username = username;
+    this.password = password;
+    this.nicknames = nicknames;
+    this.dailyMood = dailyMood;
+    this.dateOfBirth = dateOfBirth;
+    this.theme = theme;
+    this.pronouns = pronouns;
+    this.instantBuddy = instantBuddy;
+  }
+
+    // private helper method to calculate age from date of birth (provided from user object)
+  private calculateAge(dateOfBirth: Date): number {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // Adjust age if birthday hasn't occurred yet this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
     }
-
-
-    async startChat(partnerId: number) {
-        const sqlChat = "INSERT INTO chatdata (`group`, admin, groupname) VALUES ('0', ?, 'Private Chat')";
-        const [result]: any = await pool.execute(sqlChat, [this.userid]);
-
-        const newChatId = result.insertId;
-
-        const sqlMember = "INSERT INTO chatmembers (chatid, userid) VALUES (?, ?)";
-
-        await pool.execute(sqlMember, [newChatId, this.userid]);
-
-        await pool.execute(sqlMember, [newChatId, partnerId]);
-
-        console.log("New chat created with ID: " + newChatId);
-        return new Chat(newChatId, [this.userid, partnerId]);
-    }
-
-
-    async sendMessage(chatId: number, text: string): Promise<void> {
-
-        const now = new Date();
-
-        const sql = "INSERT INTO messages (userid, chatid, text, time) VALUES (?, ?, ?, ?)";
-
-        const [result]: any = await pool.execute(sql, [this.userid, chatId, text, now]);
-
-        const realMessageId = result.insertId;
-
-        const newMessage = new Message(realMessageId, this.userid, chatId, text);
-
-        console.log("Message successfully saved to database with ID: " + realMessageId);
-    }
-
-    async sendScheduledMessage(text: string, trigger: 'Red Day' | 'Yellow Day' | 'Date', openOn: Date): Promise<void> {
-        const sql = 'INSERT INTO scheduledmessages (userid, text, `trigger`, duedate) VALUES (?, ?, ?, ?)';
-
-        await pool.execute(sql, [this.userid, text, trigger, openOn]);
-
-        console.log("Message has been successfully saved on database!");
-    }
+    
+    return age;
+  }
 }
 
 module.exports = { User };
