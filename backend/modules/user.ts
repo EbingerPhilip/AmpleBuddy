@@ -1,55 +1,133 @@
+export class User {
+    private userID: number;
+    private username: string;
+    private password: string;
+    private nickname: string;
+    private dailyMood: DailyMood;
+    private dateOfBirth: Date | undefined;
+    private Contacts: number[];
+    private theme: Theme;
+    private pronouns: Pronouns;
+    private instantBuddy: boolean;
 
-const { Chat } = require("./chat");
-const { Message } = require("./message");
-const pool = require('./db');
+    constructor(
+        userID: number,
+        username: string,
+        password: string,
+        nickname: string,
+        dateOfBirth?: Date,
+    ) {
+        this.userID = userID;
+        this.username = username;
+        this.password = password;
+        this.nickname = nickname;
+        this.dateOfBirth = dateOfBirth ?? undefined;
 
-class User {
-    userid: number;
-
-    constructor(userid: number) {
-        this.userid = userid;
+        this.theme = Theme.Light;
+        this.pronouns = Pronouns.PreferNotToSay;
+        this.dailyMood = DailyMood.Empty;
+        this.instantBuddy = true;
+        this.Contacts = [];
     }
 
+    // ********** GETTER **********
 
-    async startChat(partnerId: number) {
-        const sqlChat = "INSERT INTO chatdata (`group`, admin, groupname) VALUES ('0', ?, 'Private Chat')";
-        const [result]: any = await pool.execute(sqlChat, [this.userid]);
-
-        const newChatId = result.insertId;
-
-        const sqlMember = "INSERT INTO chatmembers (chatid, userid) VALUES (?, ?)";
-
-        await pool.execute(sqlMember, [newChatId, this.userid]);
-
-        await pool.execute(sqlMember, [newChatId, partnerId]);
-
-        console.log("New chat created with ID: " + newChatId);
-        return new Chat(newChatId, [this.userid, partnerId]);
+    getUserID(): number{
+        return this.userID;
+    }
+    getUsername(): string{
+        return this.username;
+    }
+    getPassword(): string{
+        return this.password;
+    }
+    getNickname(): string{
+        return this.nickname;
+    }
+    getDailyMood(): DailyMood{
+        return this.dailyMood;
+    }
+    getDateOfBirth(): Date{
+        if (this.dateOfBirth == undefined) {
+            return new Date(1, 1, 1);
+        }
+        return this.dateOfBirth;
+    }
+    getContacts(): number[]{
+        return this.Contacts;
+    }
+    getTheme(): Theme{
+        return this.theme;
+    }
+    getPronouns(): Pronouns{
+        return this.pronouns;
+    }
+    getInstantBuddy(): boolean{
+        return this.instantBuddy;
     }
 
+    // ********** SETTER **********
 
-    async sendMessage(chatId: number, text: string): Promise<void> {
-
-        const now = new Date();
-
-        const sql = "INSERT INTO messages (userid, chatid, text, time) VALUES (?, ?, ?, ?)";
-
-        const [result]: any = await pool.execute(sql, [this.userid, chatId, text, now]);
-
-        const realMessageId = result.insertId;
-
-        const newMessage = new Message(realMessageId, this.userid, chatId, text);
-
-        console.log("Message successfully saved to database with ID: " + realMessageId);
+    setUserID(userID: number){
+        this.userID = userID;
+    }
+    setUsername(username: string){
+        this.username = username;
+    }
+    setPassword(password: string){
+        this.password = password;
+    }
+    setNickname(nickname: string){
+        this.nickname = nickname;
+    }
+    setDailyMood(dailyMood: DailyMood){
+        this.dailyMood = dailyMood;
+    }
+    setDateOfBirth(dateOfBirth: Date){
+        this.dateOfBirth = dateOfBirth;
+    }
+    setContacts(contacts: number[]){
+        this.Contacts = contacts;
+    }
+    setTheme(theme: Theme){
+        this.theme = theme;
+    }
+    setPronouns(pronouns: Pronouns){
+        this.pronouns = pronouns;
+    }
+    setInstantBuddy(instantBuddy: boolean){
+        this.instantBuddy = instantBuddy;
     }
 
-    async sendScheduledMessage(text: string, trigger: 'Red Day' | 'Yellow Day' | 'Date', openOn: Date): Promise<void> {
-        const sql = 'INSERT INTO scheduledmessages (userid, text, `trigger`, duedate) VALUES (?, ?, ?, ?)';
+    // ********** FUNCTIONS **********
 
-        await pool.execute(sql, [this.userid, text, trigger, openOn]);
-
-        console.log("Message has been successfully saved on database!");
-    }
+    sendContactRequest(userID: number) {}
+    acceptContactRequest(userID: number) {}
+    startChat(userID: number) {}
+    startGroupchat(members: number[]) {}
+    decoupleChat(chatID: number) {}
+    sendMessage(chatID: number, text: string) {}
+    sendScheduledMessage(text: string) {}
+    deleteAccount(){}
+    setMood(mood: DailyMood){}
 }
 
-module.exports = { User };
+export enum DailyMood {
+    Green,
+    Yellow,
+    Red,
+    Empty
+}
+
+export enum Theme {
+    Light,
+    Dark,
+    ColourBlind
+}
+
+export enum Pronouns {
+    PreferNotToSay,
+    SheHer,
+    HeHim,
+    TheyThem
+}
