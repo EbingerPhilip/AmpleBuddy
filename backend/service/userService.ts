@@ -3,6 +3,8 @@ import { chatRepository } from "../repository/chatRepository";
 import { preferencesRepository } from "../repository/preferencesRepository"; 
 import { chatService } from "../service/chatService";
 import { scheduledMessageRepository } from "../repository/scheduledMessageRepository";
+import { buddyPoolRepository } from "../repository/buddyPoolRepository";
+import { EDailyMood } from "../modules/user";
 
 type CreateUserInput = {
   username: string;
@@ -63,6 +65,49 @@ class UserService {
 
     // 5. Delete user from users table
     await userRepository.deleteUser(userId);
+  }
+
+  // Log daily mood and handle instant buddy matching
+  // TODO: Add moodarchive to DB and implement log functionality
+
+  // private helper to match and create chat - used for both red-green and green-red matching
+    private async matchAndCreateChat(userId: number, buddy: { userid: number }): Promise<number> {
+    const chatId = await chatService.createChat([userId, buddy.userid]);
+    await buddyPoolRepository.incrementChatCount(userId);
+    await buddyPoolRepository.incrementChatCount(buddy.userid);
+    return chatId;
+  }
+  
+  async logDailyMood(userId: number, mood: EDailyMood): Promise<{ matched: boolean; chatId?: number }> {
+    const user = await userRepository.getUserById(userId);
+    if (!user) throw new Error("User not found");
+
+    // 1) Update mood in users table 
+    await userRepository.updateUser(userId, { dailyMood: mood });
+
+    // 2) Only proceed with matching for instantBuddy = true
+    if (!user.instantBuddy) return { matched: false };
+    await buddyPoolRepository.addUser(userId, mood);
+
+    // 3) Red mood: find green match or wait for buddy 
+    // Note that the "wait for buddy" is actually set as "maxChatCount" when green user completes mood log
+    if (mood === EDailyMood.red) {
+      const buddy = await buddyPoolRepository.findByMoodLeastLoaded(EDailyMood.green);
+      if (buddy) {
+        const chatId = await this.matchAndCreateChat(userId, buddy);
+        return { matched: true, chatId };
+      }
+    }
+
+    // 4) Green mood: try to match with red user with chatCount < 2, otherwise add to pool
+    if (mood === EDailyMood.green) {
+      const buddy = await buddyPoolRepository.findByMoodNeedingBuddy(EDailyMood.red, 2);
+      if (buddy) {
+        const chatId = await this.matchAndCreateChat(userId, buddy);
+        return { matched: true, chatId };
+      }
+    }
+    return { matched: false };
   }
 }
 

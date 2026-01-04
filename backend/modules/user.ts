@@ -67,5 +67,3 @@ export class User {
     return age;
   }
 }
-
-module.exports = { User };

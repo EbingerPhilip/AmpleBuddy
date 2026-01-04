@@ -35,6 +35,7 @@ class UserRepository {
   }
 
 
+  // allowes partial updates, used to set dailyMood, theme, etc.
   async updateUser(userid: number, updates: {
     username?: string;
     password?: string;
