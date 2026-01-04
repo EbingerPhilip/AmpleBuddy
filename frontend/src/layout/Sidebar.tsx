@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../state/AuthContext";
 import { FiUser, FiHome, FiLogOut } from "react-icons/fi";
+import { FaTrafficLight } from "react-icons/fa";
 
 export default function Sidebar() {
     const { logout } = useAuth();
@@ -35,6 +36,17 @@ export default function Sidebar() {
                         title="Home"
                     >
                         <FiHome aria-hidden="true" />
+                    </NavLink>
+
+                    <NavLink
+                        to="/mood"
+                        className={({ isActive }) =>
+                            isActive ? "sidebar-icon active" : "sidebar-icon"
+                        }
+                        aria-label="Mood"
+                        title="Mood"
+                    >
+                        <FaTrafficLight aria-hidden="true" />
                     </NavLink>
                 </div>
 
