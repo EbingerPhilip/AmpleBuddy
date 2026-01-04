@@ -53,6 +53,7 @@ router.get("/user/:userId", async (req, res) => {
 });
 
 /*
+OUTDATED - use decouple instead!
 Self-removal of a member from a chat (only the user themself)
 DELETE http://localhost:3000/api/chats/:chatId/self-remove/:userId
 Headers: Content-Type: application/json
@@ -70,6 +71,40 @@ router.delete("/:chatId/self-remove/:userId", async (req, res) => {
     res.status(200).json({ message: "Successfully removed!" });
   } catch (err) {
     res.status(400).json({ error: (err as Error).message });
+  }
+});
+
+/*
+Pseudonymize and decouple user from chat: 
+1: remove user from chatmembers table 
+2a: If chat has remaining members: pseudonymize userId for decoupled user (e.g., 1)
+2b: If no remaining members: delete chat and all messages (cleanup tables chatdata and messages)
+PUT http://localhost:3000/api/chats/:chatId/decouple
+Headers: Content-Type: application/json
+Body (raw JSON):
+{
+  "userId": 2
+}
+*/
+router.put("/:chatId/decouple", async (req, res) => {
+  try {
+    const chatId = Number(req.params.chatId);
+    const { userId } = req.body as { userId: number };
+    
+    if (!userId) {
+      return res.status(400).json({ error: "Missing required field: userId" });
+    }
+    
+    const result = await chatService.decoupleUserFromChat(chatId, userId, 1);
+    res.status(200).json({ 
+      success: true, 
+      message: result.chatDeleted 
+        ? "User decoupled and chat deleted (no members left)"
+        : "User decoupled and messages pseudonymized",
+      ...result, // spread userDecoupled and chatDeleted flags
+     });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
   }
 });
 

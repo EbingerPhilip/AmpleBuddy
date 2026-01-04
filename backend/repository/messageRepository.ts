@@ -40,6 +40,20 @@ class MessageRepository {
   const [rows]: any = await pool.execute(sql, [chatId]);
   return rows;
 }
+
+// For decoupling instant buddy chats: replace real userId with fake userId (e.g., 1)
+ async pseudonymizeUserId(chatId: number, userId: number, fakeUserId = 1): Promise<void> {
+    const sql = `UPDATE messages SET sender = ? WHERE chatid = ? AND sender = ?`;
+    await pool.execute(sql, [fakeUserId, chatId, userId]);
+  }
+
+
+// Cleanup to delete all messages when a chat was deleted
+async deleteMessagesByChat(chatId: number): Promise<void> {
+const sql = `DELETE FROM messages WHERE chatid = ?`;
+await pool.execute(sql, [chatId]);
+}
+
 }
 
 export const messageRepository = new MessageRepository();
