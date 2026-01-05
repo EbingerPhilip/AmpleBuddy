@@ -9,6 +9,7 @@ import chatRoutes from "./routes/chatRoutes";
 import preferencesRoutes from "./routes/preferencesRoutes";
 import userRoutes from "./routes/userRoutes";
 import  groupChatRoutes  from "./routes/groupChatRoutes";
+import previewRoutes from "./routes/previewRoutes";
 
 
 const app = express();
@@ -47,6 +48,7 @@ app.use("/api/chats", chatRoutes);
 app.use("/api/preferences", preferencesRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/groupchats", groupChatRoutes);
+app.use("/api/previews", previewRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
