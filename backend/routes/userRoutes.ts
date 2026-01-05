@@ -143,7 +143,7 @@ router.post("/profile-pics", upload.single("profile-pics"), async (req, res) => 
   if (!req.file) return res.status(400).send("No file uploaded");
 
   const userId = req.body.userId;
-  const folderpath =  path.join(__dirname, "../../frontend/public/profile-pics");
+  const folderpath =  path.join(__dirname, "../../backend/public/profile-pics");
   const url = path.join(folderpath, `${userId}.png`);
 
   await sharp(req.file.buffer).png().toFile(url);

@@ -23,5 +23,3 @@ dist-ssr
 *.sln
 *.sw?
 
-#profile pics
-/public/profile-pics/*

@@ -22,7 +22,7 @@ const frontendPath = path.join(__dirname, "../frontend/dist");
 app.use(express.static(frontendPath));
 app.use(
   "/profile-pics",
-  express.static(path.join(__dirname, "../frontend/public/profile-pics"))
+  express.static(path.join(__dirname, "../backend/public/profile-pics"))
 );
 
 app.get("/", (_req, res) => {
