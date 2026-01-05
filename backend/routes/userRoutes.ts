@@ -1,7 +1,11 @@
 import { Router } from "express";
 import { userService } from "../service/userService";
 import { EDailyMood } from "../modules/user";
+import multer from "multer"
+import path from "path"
+import sharp from "sharp";
 
+const upload = multer({ storage: multer.memoryStorage() });
 const router = Router();
 
 /*
@@ -125,5 +129,28 @@ router.post("/:userId/mood", async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
+
+/*
+Upload Profile Picture
+POST http://localhost:3000/api/users/profile-pics
+Headers: Content-Type: application/json
+Body/form-data:
+key:            Value:
+userId          4
+profile-pics    image.png 
+*/
+router.post("/profile-pics", upload.single("profile-pics"), async (req, res) => {
+  if (!req.file) return res.status(400).send("No file uploaded");
+
+  const userId = req.body.userId;
+  const folderpath =  path.join(__dirname, "../../frontend/public/profile-pics");
+  const url = path.join(folderpath, `${userId}.png`);
+
+  await sharp(req.file.buffer).png().toFile(url);
+
+  res.json({ message : `URL: http://localhost:3000/profile-pics/${userId}.png` }); // frontend can use this URL directly
+},);
+
+
 
 export default router;
