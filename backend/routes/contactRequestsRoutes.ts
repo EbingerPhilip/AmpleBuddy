@@ -32,7 +32,7 @@ router.post("/acceptContact", async (req,res) =>{
 Delete contact between two users by there ID.
 GET http://localhost:3000/api/users/deleteContact/:userID
  */
-router.put("/rejectContact", async (req, res) => {
+router.post("/rejectContact", async (req, res) => {
     try {
         const {userIdOwner, userIdRequester} = req.body;
         if(!userIdOwner || !userIdRequester) return res.status(400).json({ error: "Missing or invalid user IDs" });
@@ -41,6 +41,22 @@ router.put("/rejectContact", async (req, res) => {
         res.status(200).json({ success: true, message: dbResponse });
     } catch (err: any) {
         res.status(400).json({ success: false, error: err.message });
+    }
+});
+
+router.get("/getContactRequests/:userId", async (req,res) =>{
+    try {
+        const userId = Number(req.params.userId);
+
+        if(!userId){
+            return res.status(400).json({ error: "Missing or invalid user ID" });
+        }
+
+        const response = await contactRequestsService.getContactRequests(userId);
+
+        res.status(201).json({ success: true, response: response });
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
     }
 });
 

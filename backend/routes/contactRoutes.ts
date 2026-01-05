@@ -22,14 +22,16 @@ router.post("/saveContact", async (req,res) =>{
 
 router.get("/getContacts/:userId", async (req,res) =>{
     try {
-        const userId = Number(req.params.userId);;
+        const userId = Number(req.params.userId);
+
+        console.log(userId);
 
         if(!userId){
             return res.status(400).json({ error: "Missing or invalid user ID" });
         }
 
         const response = await contactsService.getContacts(userId);
-
+        console.log(response);
         res.status(201).json({ success: true, response: response });
     } catch (err: any) {
         res.status(400).json({ error: err.message });

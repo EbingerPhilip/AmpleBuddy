@@ -27,7 +27,7 @@ class ContactRequestsReposetory {
 
     async deleteContactRequests(useridOwner: number, useridRequester: number): Promise<any|null>{
         const sql = `DELETE FROM contactrequests WHERE useridOwner = ? and useridRequester = ?;`;
-        const [rows]: any = await pool.execute(sql, [useridOwner], [useridRequester]);
+        const [rows]: any = await pool.execute(sql, [useridOwner, useridRequester]);
         return rows[0] ?? null;
     }
 }
