@@ -99,9 +99,9 @@ class UserService {
       }
     }
 
-    // 4) Green mood: try to match with red user with chatCount < 2, otherwise add to pool
+    // 4) Green mood: try to match with red user with chatCount < 1, otherwise add to pool
     if (mood === EDailyMood.green) {
-      const buddy = await buddyPoolRepository.findByMoodNeedingBuddy(EDailyMood.red, 2);
+      const buddy = await buddyPoolRepository.findByMoodNeedingBuddy(EDailyMood.red, 1);
       if (buddy) {
         const chatId = await this.matchAndCreateChat(userId, buddy);
         return { matched: true, chatId };
