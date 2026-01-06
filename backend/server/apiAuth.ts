@@ -2,7 +2,7 @@ import type { Express } from "express";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-// PLACEHOLDER, move later into .env file !
+// PLACEHOLDER, move later into ..env file !
 const JWT_SECRET = process.env.JWT_SECRET ?? "dev-secret-change-me";
 
 // *************************************** PLACE HOLDER USERS ***************************************

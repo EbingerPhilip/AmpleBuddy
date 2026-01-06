@@ -9,7 +9,7 @@ dotenv.config({
 const user = process.env.DBuser;
 const password = process.env.DBpassword;
 if (!user || !password){
-throw Error('failed to read .env file')
+throw Error('failed to read ..env file')
 } 
 
 const pool = mysql.createPool({

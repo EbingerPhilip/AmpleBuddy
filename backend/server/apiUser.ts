@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import jwt from "jsonwebtoken";
 
-// Must match apiAuth.ts (move to .env later)
+// Must match apiAuth.ts (move to ..env later)
 const JWT_SECRET = process.env.JWT_SECRET ?? "dev-secret-change-me";
 
 type ChatMember = {
