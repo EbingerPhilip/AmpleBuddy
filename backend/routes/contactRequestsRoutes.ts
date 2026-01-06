@@ -6,8 +6,22 @@ import {contactRequestsReposetory} from "../repository/contactRequestsReposetory
 const router = Router();
 
 /*
-Get user by ID
-GET http://localhost:3000/api/users/:userId
+Accepts a contact Request. Deletes the Request in the Requests table and adds teh contact to the contact table.
+
+POST: http://localhost:3000/api/contactRequests/acceptContact
+
+Request:
+Head: -
+Body:
+{
+    "userIdOwner":"2",
+    "userIdRequester":"5"
+}
+
+Response:
+{
+    "success": true
+}
 */
 router.post("/acceptContact", async (req,res) =>{
     try {
@@ -15,12 +29,9 @@ router.post("/acceptContact", async (req,res) =>{
 
         if(!userIdOwner || !userIdRequester) return res.status(400).json({ error: "Missing or invalid user IDs" });
 
-        const response = await contactsService.createContact(userIdOwner, userIdRequester);
-        // TODO: What is the response?
-        console.log(response);
+        await contactsService.createContact(userIdOwner, userIdRequester);
 
-        const dbResponseContactRequests = await contactRequestsService.deleteContactRequest(userIdOwner,userIdRequester);
-        console.log(dbResponseContactRequests);
+        await contactRequestsService.deleteContactRequest(userIdOwner,userIdRequester);
 
         res.status(201).json({ success: true});
     } catch (err: any) {
@@ -30,20 +41,60 @@ router.post("/acceptContact", async (req,res) =>{
 
 /*
 Delete contact between two users by there ID.
-GET http://localhost:3000/api/users/deleteContact/:userID
+GET http://localhost:3000/api/contactRequests/rejectContact
+
+Request:
+Header: -
+Body:
+{
+    "userIdOwner":"2",
+    "userIdRequester":"6"
+}
+
+Response:
+{
+    "success": true
+}
  */
 router.post("/rejectContact", async (req, res) => {
     try {
         const {userIdOwner, userIdRequester} = req.body;
         if(!userIdOwner || !userIdRequester) return res.status(400).json({ error: "Missing or invalid user IDs" });
-        const dbResponse = await contactRequestsService.deleteContactRequest(userIdOwner, userIdRequester);
-        console.log(dbResponse);
-        res.status(200).json({ success: true, message: dbResponse });
+        const a = await contactRequestsService.deleteContactRequest(userIdOwner, userIdRequester);
+
+        res.status(200).json({ success: true});
     } catch (err: any) {
         res.status(400).json({ success: false, error: err.message });
     }
 });
 
+
+/*
+Returns the contact Requests of a specific user.
+
+GET: http://localhost:3000/api/contactRequests/getContactRequests/:userId
+
+userId: The user id of teh user who got the requests.
+
+Request:
+Header: -
+Body: -
+
+Response:
+{
+    "success": true,
+    "contacts": [
+        {
+            "useridOwner": 2,
+            "useridRequester": 5
+        },
+        {
+            "useridOwner": 2,
+            "useridRequester": 6
+        }
+    ]
+}
+ */
 router.get("/getContactRequests/:userId", async (req,res) =>{
     try {
         const userId = Number(req.params.userId);
@@ -54,7 +105,7 @@ router.get("/getContactRequests/:userId", async (req,res) =>{
 
         const response = await contactRequestsService.getContactRequests(userId);
 
-        res.status(201).json({ success: true, response: response });
+        res.status(201).json({ success: true, contacts: response });
     } catch (err: any) {
         res.status(400).json({ error: err.message });
     }

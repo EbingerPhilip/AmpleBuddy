@@ -14,7 +14,7 @@ class ContactRequestsReposetory {
     }
 
     async getContactRequestsByUserId(userid: number): Promise<any|null>{
-        const sql = `select * from contacts where useridOwner = ?;`;
+        const sql = `select * from contactrequests where useridOwner = ?;`;
         const [rows]: any = await pool.execute(sql, [userid]);
         return rows ?? null;
     }
