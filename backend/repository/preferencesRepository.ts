@@ -46,14 +46,12 @@ class PreferencesRepository {
     ]);
   }
 
-  /*
-  probably needed later - once delete account becomes available
-  
-  async deletePreferences(userid: number): Promise<void> {
+
+  async deletePreferencesByUserId(userid: number): Promise<void> {
     const sql = `DELETE FROM prefrences WHERE userid = ?`;
     await pool.execute(sql, [userid]);
   }
-    */
+
 }
 
 export const preferencesRepository = new PreferencesRepository();

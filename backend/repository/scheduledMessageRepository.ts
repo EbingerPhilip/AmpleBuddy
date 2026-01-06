@@ -41,6 +41,11 @@ class ScheduledMessageRepository {
     const sql = `DELETE FROM scheduledmessages WHERE messageId = ?`;
     await pool.execute(sql, [messageId]);
   }
+
+  async deleteScheduledMessagesByUserId(userId: number): Promise<void> {
+    const sql = `DELETE FROM scheduledmessages WHERE userid = ?`;
+    await pool.execute(sql, [userId]);
+  }
 }
 
 export const scheduledMessageRepository = new ScheduledMessageRepository();

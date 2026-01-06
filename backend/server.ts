@@ -10,6 +10,9 @@ import preferencesRoutes from "./routes/preferencesRoutes";
 import userRoutes from "./routes/userRoutes";
 import contactRoutes from "./routes/contactRoutes";
 import contactRequestsRoutes from "./routes/contactRequestsRoutes";
+import  groupChatRoutes  from "./routes/groupChatRoutes";
+import previewRoutes from "./routes/previewRoutes";
+
 
 const app = express();
 app.use(cors());          
@@ -48,6 +51,8 @@ app.use("/api/preferences", preferencesRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/contacts", contactRoutes);
 app.use("/api/contactRequests", contactRequestsRoutes);
+app.use("/api/groupchats", groupChatRoutes);
+app.use("/api/previews", previewRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

@@ -35,6 +35,7 @@ class UserRepository {
   }
 
 
+  // allowes partial updates, used to set dailyMood, theme, etc.
   async updateUser(userid: number, updates: {
     username?: string;
     password?: string;
@@ -71,14 +72,12 @@ class UserRepository {
     ]);
   }
 
-  /*
-  This is not correct - deleting a user is partially done by replacing with 'Deleted User' 
-  
+ 
   async deleteUser(userid: number): Promise<void> {
     const sql = `DELETE FROM users WHERE userid = ?`;
     await pool.execute(sql, [userid]);
   }
-    */
+  
 
 }
 

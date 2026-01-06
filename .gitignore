@@ -37,3 +37,7 @@ frontend/node_modules/
 # Optional: Backend specific
 backend/dist/
 backend/node_modules/
+
+# keys
+*.cert
+*.key

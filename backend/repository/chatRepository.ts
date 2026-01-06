@@ -35,6 +35,14 @@ class ChatRepository {
     return rows.map((row: any) => row.messageId);
   }
 
+  // returns only chatids for given user
+   async getUserChatIds(userId: number): Promise<number[]> {
+    const sql = `SELECT DISTINCT cm.chatid FROM chatmembers cm WHERE cm.userid = ?`;
+    const [rows]: any = await pool.execute(sql, [userId]);
+    return rows.map((row: any) => row.chatid); // Extract only number to avoid formatting error
+  }
+
+  // returns full chat data for given user
    async getUserChats(userId: number): Promise<any[]> {
     const sql = `SELECT DISTINCT c.* FROM chatdata c 
                  JOIN chatmembers cm ON c.chatId = cm.chatid 
@@ -52,6 +60,13 @@ class ChatRepository {
     const sql = `DELETE FROM chatmembers WHERE chatid = ? AND userid = ?`;
     await pool.execute(sql, [chatId, userId]);
   }
+
+  // This is used for cleanup, once all members have left the chat (delete entry from chatdata table)
+  async deleteChat(chatId: number): Promise<void> {
+  const sql = `DELETE FROM chatdata WHERE chatId = ?`;
+  await pool.execute(sql, [chatId]);
 }
+}
+
 
 export const chatRepository = new ChatRepository();
