@@ -88,6 +88,35 @@ router.put("/:userId", async (req, res) => {
   }
 });
 
+
+/*
+Get user nickname by user ID
+GET http://localhost:3000/api/users/findUser/:userId
+
+Request:
+userId: User of which the nickname is requested.
+
+Response:
+{
+    "succsess": true,
+    "userNickname": "Maria Garcia"
+}
+ */
+router.get("/findUser/:userId", async (req, res)=>{
+  try {
+    const userID = Number(req.params.userId);
+    if(userID == 1 || userID == 2) res.status(400).json({error: "Invalid User"});
+    const user = await userService.getUserById(userID);
+    const userNickname = user.nicknames;
+
+    if (!userNickname) return res.status(404).json({error: "User not found"})
+    res.status(200).json({succsess: true, userNickname: userNickname});
+  } catch (err: any) {
+    res.status(400).json({error: err.message});
+  }
+});
+
+
 /*
 Delete user account completely:
 1. Decouple from all chats (replace with [deleted] user (userId = 1) or delete chats without remaining members)

@@ -8,6 +8,8 @@ import  ScheduledMessageRoutes from "./routes/scheduledMessageRoutes";
 import chatRoutes from "./routes/chatRoutes";
 import preferencesRoutes from "./routes/preferencesRoutes";
 import userRoutes from "./routes/userRoutes";
+import contactRoutes from "./routes/contactRoutes";
+import contactRequestsRoutes from "./routes/contactRequestsRoutes";
 import  groupChatRoutes  from "./routes/groupChatRoutes";
 import previewRoutes from "./routes/previewRoutes";
 
@@ -38,6 +40,8 @@ app.use("/api/scheduledMessage", ScheduledMessageRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/preferences", preferencesRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/contacts", contactRoutes);
+app.use("/api/contactRequests", contactRequestsRoutes);
 app.use("/api/groupchats", groupChatRoutes);
 app.use("/api/previews", previewRoutes);
 
