@@ -1,133 +1,71 @@
+export enum EDailyMood {
+  green = 'green',
+  yellow = 'yellow',
+  red = 'red',
+  gray = 'gray'
+}
+
+export enum ETheme {
+  light = 'light',
+  dark = 'dark',
+  moody = 'moody'
+  // fucking vampire
+}
+
+export enum EPronouns {
+  heHim = 'he/him',
+  sheHer = 'she/her',
+  theyThem = 'they/them',
+  hidden = 'hidden'
+}
+
 export class User {
-    private userID: number;
-    private username: string;
-    private password: string;
-    private nickname: string;
-    private dailyMood: DailyMood;
-    private dateOfBirth: Date | undefined;
-    private Contacts: number[];
-    private theme: Theme;
-    private pronouns: Pronouns;
-    private instantBuddy: boolean;
+  userid: number;
+  username: string;
+  password: string;
+  nicknames: string;
+  dailyMood: EDailyMood;
+  dateOfBirth: Date | null;
+  theme: ETheme;
+  pronouns: EPronouns;
+  instantBuddy: boolean;
 
-    constructor(
-        userID: number,
-        username: string,
-        password: string,
-        nickname: string,
-        dateOfBirth?: Date,
-    ) {
-        this.userID = userID;
-        this.username = username;
-        this.password = password;
-        this.nickname = nickname;
-        this.dateOfBirth = dateOfBirth ?? undefined;
+  constructor(
+    userid: number,
+    username: string,
+    password: string,
+    nicknames: string,
+    dailyMood: EDailyMood = EDailyMood.gray,
+    dateOfBirth: Date | null = null,
+    theme: ETheme = ETheme.light,
+    pronouns: EPronouns = EPronouns.hidden,
+    instantBuddy: boolean = false
+  ) {
+    this.userid = userid;
+    this.username = username;
+    this.password = password;
+    this.nicknames = nicknames;
+    this.dailyMood = dailyMood;
+    this.dateOfBirth = dateOfBirth;
+    this.theme = theme;
+    this.pronouns = pronouns;
+    this.instantBuddy = instantBuddy;
+  }
 
-        this.theme = Theme.Light;
-        this.pronouns = Pronouns.PreferNotToSay;
-        this.dailyMood = DailyMood.Empty;
-        this.instantBuddy = true;
-        this.Contacts = [];
-    }
+    // private helper method to calculate age from date of birth (provided from user object)
+  private calculateAge(dateOfBirth: Date): number {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
 
-    // ********** GETTER **********
-
-    getUserID(): number{
-        return this.userID;
-    }
-    getUsername(): string{
-        return this.username;
-    }
-    getPassword(): string{
-        return this.password;
-    }
-    getNickname(): string{
-        return this.nickname;
-    }
-    getDailyMood(): DailyMood{
-        return this.dailyMood;
-    }
-    getDateOfBirth(): Date{
-        if (this.dateOfBirth == undefined) {
-            return new Date(1, 1, 1);
-        }
-        return this.dateOfBirth;
-    }
-    getContacts(): number[]{
-        return this.Contacts;
-    }
-    getTheme(): Theme{
-        return this.theme;
-    }
-    getPronouns(): Pronouns{
-        return this.pronouns;
-    }
-    getInstantBuddy(): boolean{
-        return this.instantBuddy;
+    // Adjust age if birthday hasn't occurred yet this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
     }
 
-    // ********** SETTER **********
-
-    setUserID(userID: number){
-        this.userID = userID;
-    }
-    setUsername(username: string){
-        this.username = username;
-    }
-    setPassword(password: string){
-        this.password = password;
-    }
-    setNickname(nickname: string){
-        this.nickname = nickname;
-    }
-    setDailyMood(dailyMood: DailyMood){
-        this.dailyMood = dailyMood;
-    }
-    setDateOfBirth(dateOfBirth: Date){
-        this.dateOfBirth = dateOfBirth;
-    }
-    setContacts(contacts: number[]){
-        this.Contacts = contacts;
-    }
-    setTheme(theme: Theme){
-        this.theme = theme;
-    }
-    setPronouns(pronouns: Pronouns){
-        this.pronouns = pronouns;
-    }
-    setInstantBuddy(instantBuddy: boolean){
-        this.instantBuddy = instantBuddy;
-    }
-
-    // ********** FUNCTIONS **********
-
-    sendContactRequest(userID: number) {}
-    acceptContactRequest(userID: number) {}
-    startChat(userID: number) {}
-    startGroupchat(members: number[]) {}
-    decoupleChat(chatID: number) {}
-    sendMessage(chatID: number, text: string) {}
-    sendScheduledMessage(text: string) {}
-    deleteAccount(){}
-    setMood(mood: DailyMood){}
+    return age;
+  }
 }
 
-export enum DailyMood {
-    Green,
-    Yellow,
-    Red,
-    Empty
-}
-
-export enum Theme {
-    Light,
-    Dark,
-    ColourBlind
-}
-
-export enum Pronouns {
-    PreferNotToSay,
-    SheHer,
-    HeHim,
-    TheyThem
-}
+module.exports = { User };

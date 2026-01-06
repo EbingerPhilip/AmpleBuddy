@@ -1,37 +1,55 @@
-const pool = require('./db')
-class Message {
+// const pool = require('./db')
+import {messageRepository} from "../repository/messageRepository";
+
+export class Message {
     messageid: number;
     userid: number;
     chatid: number;
-    date: Date;
+    timeSent: Date; // Changed from 'date' to 'timeSent' to avoid confusion with Date type
     text: string;
 
-    constructor(messageid: number, userid: number, chatid: number, text: string) {
+    constructor(messageid: number, userid: number, chatid: number, timeSent: Date, text: string) {
         this.messageid = messageid;
         this.userid = userid;
         this.chatid = chatid;
-        this.date = new Date();
+        this.timeSent = timeSent; // Fixed constructor to work with actual Timestamp from DB
         this.text = text;
     }
 
-    async editMessage(newtext: string): Promise<void> {
-        const now = new Date();
-        const diffinminutes = (now.getTime() - this.date.getTime()) / 60000;
-        if (diffinminutes > 5) {
-            console.error("Error: you cannot edit the message!");
-            return;
-        }
-        this.text = newtext;
-        const sql = 'UPDATE messages SET text = ? WHERE messageid = ?';
-        await pool.execute(sql, [newtext, this.messageid]);
-         console.log("Message edited: " + this.text);
+    static async create(userId: number, chatId: number, text: string): Promise<Message> {
+    const messageId = await messageRepository.createMessage(userId, chatId, text);
+    const messageData = await messageRepository.getMessageById(messageId); // Fetch the full message data, nessecary to get timestamp
+    return new Message(
+      messageData.messageid,
+      messageData.userid,
+      messageData.chatid,
+      new Date(messageData.timeSent), // Convert string-timestamp to Date object
+      messageData.text
+    );
+  }
 
+    async edit(newText: string): Promise<void> {
+        const now = new Date(); // Buisness logic was moved to service layer, only DB update including new timestamp remains here
+        await messageRepository.updateMessage(this.messageid, newText);
+        this.text = newText;
+        this.timeSent = now;
     }
-    async deleteMessage(): Promise<void> {
-        const sql = 'DELETE FROM messages WHERE messageid = ?';
-        await pool.execute(sql, [this.messageid]);
-        console.log("Message " + this.messageid + " has been deleted!");
 
+    
+    static async findById(messageId: number): Promise<Message | null> {
+    const messageData = await messageRepository.getMessageById(messageId);
+    if (!messageData) return null;
+    return new Message(
+      messageData.messageid,
+      messageData.userid,
+      messageData.chatid,
+      new Date(messageData.date),
+      messageData.text
+    );
+  }
+    async deleteMessage(): Promise<void> {
+        await messageRepository.deleteMessage(this.messageid);
+        console.log("Message " + this.messageid + " has been deleted!");
     }
 }
 

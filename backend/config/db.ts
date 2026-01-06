@@ -17,6 +17,7 @@ const pool = mysql.createPool({
   user: user,
   password: password,
   database: "amplebuddy",
+  charset: "utf8mb4"
 });
 
 module.exports = pool.promise();

@@ -7,6 +7,7 @@ import ViewProfilePage from "./pages/Profile";
 import { useAuth } from "./state/AuthContext";
 import type { JSX } from "react";
 import AuthedLayout from "./layout/AuthedLayout";
+import MoodAmple from "./pages/MoodAmple";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
     const { isAuthenticated } = useAuth();
@@ -33,6 +34,7 @@ export default function App() {
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/chat/:chatId" element={<ViewChatPage />} />
                 <Route path="/profile" element={<ViewProfilePage />} />
+                < Route path="/mood" element={<MoodAmple />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/login" replace />} />

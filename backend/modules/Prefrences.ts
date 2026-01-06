@@ -1,9 +1,9 @@
-import {EPronouns} from "./userFunctions";
+import {EPronouns} from "./user";
 
 class Prefrences{
     private userID: number;
     private age: Date;    // Unix Epoch: 1 January 1970
-    private gender: EPronouns = EPronouns.notset;
+    private gender: EPronouns = EPronouns.hidden;
     private minGreen: number = 0;
 
     public constructor(userID: number) {
