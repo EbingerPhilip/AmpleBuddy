@@ -1,9 +1,9 @@
 import { userRepository } from "../repository/userRepository";
 import { chatRepository } from "../repository/chatRepository"; 
 import { preferencesRepository } from "../repository/preferencesRepository"; 
-import { chatService } from "../service/chatService";
+import { chatService } from "./chatService";
 import { scheduledMessageRepository } from "../repository/scheduledMessageRepository";
-import { buddyPoolRepository } from "../repository/buddyPoolRepository";
+import { buddyPoolRepository } from "../repository/buddypoolRepository";
 import { EDailyMood } from "../modules/user";
 
 type CreateUserInput = {
@@ -28,7 +28,11 @@ class UserService {
     return userRepository.getUserById(userId);
   }
 
-  // optional helper to fetch all users if needed later
+  async getUserByUsername(username: string) {
+      return userRepository.getUserByUsername(username);
+  }
+
+    // optional helper to fetch all users if needed later
   // async getAllUsers(): Promise<any[]> {
   //   return userRepository.getAllUsers();
   // }

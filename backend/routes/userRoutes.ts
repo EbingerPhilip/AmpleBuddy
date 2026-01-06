@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { userService } from "../service/userService";
 import { EDailyMood } from "../modules/user";
+import { signUserToken } from "../modules/jwt";
 import multer from "multer"
 import path from "path"
 import sharp from "sharp";
@@ -25,26 +26,117 @@ Body (raw JSON):
 }
 */
 router.post("/new", async (req, res) => {
-  try {
-    const { username, password, nicknames, dailyMood, dateOfBirth, theme, pronouns, instantBuddy } = req.body;
-    if (!username || !password || !nicknames) {
-      return res.status(400).json({ error: "Missing required fields: username, password, nicknames" });
+    try {
+        console.log("[REGISTER] body =", req.body);
+        let { username, password, nicknames, dailyMood, dateOfBirth, theme, pronouns, instantBuddy } = req.body ?? {};
+
+        // Basic field checks
+        if (typeof username !== "string" || typeof password !== "string" || typeof nicknames !== "string") {
+            return res.status(400).json({ error: "Missing required fields: username, password, nicknames" });
+        }
+        username = username.trim();
+        nicknames = nicknames.trim();
+        if (!username || !password || !nicknames) {
+            return res.status(400).json({ error: "Missing required fields: username, password, nicknames" });
+        }
+
+        // match DB schema
+        dailyMood = typeof dailyMood === "string" ? dailyMood : "grey";
+        theme = typeof theme === "string" ? theme : "light";
+        pronouns = typeof pronouns === "string" ? pronouns : "hidden";
+
+        // dateOfBirth can be null
+        dateOfBirth = typeof dateOfBirth === "string" ? dateOfBirth : null;
+
+        const instantBuddyRaw = instantBuddy;
+        instantBuddy = instantBuddyRaw === true || instantBuddyRaw === 1 || instantBuddyRaw === "1" ? 1 : 0;
+
+        // Explicit enum validation
+        const allowedMoods = new Set(["green", "yellow", "red", "grey"]);
+        const allowedThemes = new Set(["light", "dark", "moody"]);
+        // FOR SOME FUCKASS REASON, PHILIP MADE THE COLOUR-BLIND OPTION IN DB BE CALLED MOODY
+        const allowedPronouns = new Set(["he/him", "she/her", "they/them", "hidden"]);
+
+        if (!allowedMoods.has(dailyMood)) {
+            return res.status(400).json({ error: "Invalid dailyMood. Allowed: green, yellow, red, grey" });
+        }
+        if (!allowedThemes.has(theme)) {
+            return res.status(400).json({ error: "Invalid theme. Allowed: light, dark, moody" });
+        }
+        if (pronouns == "prefer not to say") {
+            pronouns = "hidden";
+        }
+        if (!allowedPronouns.has(pronouns)) {
+            return res.status(400).json({ error: "Invalid pronouns. Allowed: he/him, she/her, they/them, hidden" });
+        }
+
+        // Create user
+        const id = await userService.createUser({
+            username,
+            password,
+            nicknames,
+            dailyMood,
+            dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+            theme,
+            pronouns,
+            instantBuddy,
+        });
+
+        return res.status(201).json({ success: true, userId: id });
+    } catch (err: any) {
+        console.error("[REGISTER] error =", err);
+
+        const message = err?.sqlMessage || err?.message || "Registration failed (unknown error)";
+        return res.status(400).json({ error: message });
     }
-    const id = await userService.createUser({
-      username,
-      password,
-      nicknames,
-      dailyMood,
-      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
-      theme,
-      pronouns,
-      instantBuddy,
-    });
-    res.status(201).json({ success: true, userId: id });
-  } catch (err: any) {
-    res.status(400).json({ error: err.message });
-  }
 });
+
+
+/*
+Login
+POST https://localhost:3000/api/user/login
+Headers: Content-Type: application/json
+Body (raw JSON):
+{
+  "username": "buddy@example.com",
+  "password": "test123"
+}
+Response:
+{
+  "success": true,
+  "userId": 123,
+  "token": "<jwt>"
+}
+*/
+router.post("/login", async (req, res) => {
+    try {
+        const { username, password } = req.body ?? {};
+        if (typeof username !== "string" || typeof password !== "string") {
+            return res.status(400).json({ error: "Missing or invalid fields: username, password" });
+        }
+
+        const usernameNorm = username.trim();
+        if (!usernameNorm) {
+            return res.status(400).json({ error: "Username mustn't be empty" });
+        }
+
+        const user = await userService.getUserByUsername(usernameNorm);
+        if (!user) {
+            return res.status(401).json({ error: "Invalid credentials" });
+        }
+
+        // Note for self: DB currently saves passwords as plaintext, change this if we change that
+        if (user.password !== password) {
+            return res.status(401).json({ error: "Invalid credentials" });
+        }
+
+        const token = signUserToken(Number(user.userid));
+        return res.status(200).json({ success: true, userId: Number(user.userid), token });
+    } catch (err: any) {
+        return res.status(400).json({ error: err.message });
+    }
+});
+
 
 /*
 Get user by ID
@@ -179,7 +271,5 @@ router.post("/profile-pics", upload.single("profile-pics"), async (req, res) => 
 
   res.json({ message : `URL: http://localhost:3000/profile-pics/${userId}.png` }); // frontend can use this URL directly
 },);
-
-
 
 export default router;

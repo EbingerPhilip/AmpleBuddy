@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { previewService } from "../service/previewService";
+import { requireAuth, AuthedRequest } from "../modules/authMiddleware";
 
 const router = Router();
 
@@ -82,23 +83,20 @@ Returns (200):
 
 Headers: Content-Type: application/json
 */
-router.get("/all/:userId", async (req, res) => {
+router.get("/chats/all", async (req, res) => {
   try {
-    const userId = Number(req.params.userId);
-    const groupParam = req.query.group as string | undefined;
-    
-    // Note to self: There is no point in using Query Paramenters, if we dont pass them on to the service!
-    let group: boolean | undefined = undefined;
-    if (groupParam === "true") {
-      group = true;
-    } else if (groupParam === "false") {
-      group = false;
-    }
+      const userId = (req as AuthedRequest).userId;
+      const groupParam = req.query.group as string | undefined;
 
-    const previews = await previewService.loadAllChatPreviewsForUser(userId, group);
-    res.json(previews);
+      // Note to self: There is no point in using Query Paramenters, if we dont pass them on to the service!
+      let group: boolean | undefined = undefined;
+      if (groupParam === "true") { group = true; }
+      else if (groupParam === "false") {group = false; }
+
+      const previews = await previewService.loadAllChatPreviewsForUser(userId, group);
+      res.json(previews);
   } catch (err) {
-    res.status(400).json({ error: (err as Error).message });
+      res.status(400).json({ error: (err as Error).message });
   }
 });
 

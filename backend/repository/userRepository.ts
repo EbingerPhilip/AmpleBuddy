@@ -34,6 +34,12 @@ class UserRepository {
     return rows[0] ?? null;
   }
 
+  // Needed for login - T
+  async getUserByUsername(username: string): Promise<any | null> {
+      const sql = `SELECT * FROM users WHERE username = ?`;
+      const [rows]: any = await pool.execute(sql, [username]);
+      return rows[0] ?? null;
+  }
 
   // allowes partial updates, used to set dailyMood, theme, etc.
   async updateUser(userid: number, updates: {
@@ -77,7 +83,6 @@ class UserRepository {
     const sql = `DELETE FROM users WHERE userid = ?`;
     await pool.execute(sql, [userid]);
   }
-  
 
 }
 
