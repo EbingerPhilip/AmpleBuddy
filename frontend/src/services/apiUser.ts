@@ -11,15 +11,20 @@ export type ChatMember = {
 export type ChatMessage = {
     messageId: number;
     senderId: number;
+    senderNickname: string;
     content: string;
     sentAtIso: string;
 };
 
+
 export type Chat = {
     chatId: number;
+    isGroup: boolean;
+    groupName: string | null;
     members: ChatMember[];
     lastMessage: ChatMessage | null;
 };
+
 
 type ChatPreview = {
     chatId: number;
@@ -69,16 +74,21 @@ export async function apiGetMyChats(): Promise<{ userId: number; chats: Chat[] }
                 ? {
                     messageId: p.messageId,
                     senderId: p.sender,
+                    senderNickname: p.sendernickname ?? "Unknown",
                     content: p.text,
                     sentAtIso: "", // no timestamps
                 }
                 : null;
 
+
         return {
             chatId: p.chatId,
+            isGroup: p.group === 1,
+            groupName: p.groupname ?? null,
             members,
             lastMessage,
         };
+
     });
 
     return { userId: session.userId, chats };
