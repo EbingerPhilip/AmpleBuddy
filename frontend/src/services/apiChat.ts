@@ -30,3 +30,13 @@ export async function apiGetChatTitle(chatId: number): Promise<string> {
     const body = await res.json();
     return body.title as string;
 }
+export async function apiCreateChat(members: number[]): Promise<number> {
+    const res = await authFetch(`/api/chats/new`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ members }),
+    });
+    if (!res.ok) throw new Error("Failed to create chat");
+    const body = await res.json();
+    return body.chatId as number;
+}

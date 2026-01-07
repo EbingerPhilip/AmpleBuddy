@@ -90,7 +90,7 @@ export default function ChatListPage() {
     }, []);
 
     return (
-        <main className="authed-content">
+        <main className="page page-wide">
             <div className="home-columns">
                 {/* LEFT COLUMN */}
                 <section className="home-column home-column--news">

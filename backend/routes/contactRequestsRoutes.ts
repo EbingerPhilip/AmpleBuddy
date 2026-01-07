@@ -1,115 +1,84 @@
 import { Router } from "express";
 import { contactRequestsService } from "../service/contactRequestsService";
-import {contactsService} from "../service/contactsService";
-import {contactRequestsReposetory} from "../repository/contactRequestsReposetory";
+import { contactsService } from "../service/contactsService";
+import { userService } from "../service/userService";
+import { requireAuth, type AuthedRequest } from "../modules/authMiddleware";
 
 const router = Router();
 
 /*
-Accepts a contact Request. Deletes the Request in the Requests table and adds teh contact to the contact table.
-
-POST: http://localhost:3000/api/contactRequests/acceptContact
-
-Request:
-Head: -
-Body:
-{
-    "userIdOwner":"2",
-    "userIdRequester":"5"
-}
-
-Response:
-{
-    "success": true
-}
+GET my incoming contact requests
+GET /api/contactRequests/mine
 */
-router.post("/acceptContact", async (req,res) =>{
-    try {
-        const {userIdOwner, userIdRequester} = req.body;
-
-        if(!userIdOwner || !userIdRequester) return res.status(400).json({ error: "Missing or invalid user IDs" });
-
-        await contactsService.createContact(userIdOwner, userIdRequester);
-
-        await contactRequestsService.deleteContactRequest(userIdOwner,userIdRequester);
-
-        res.status(201).json({ success: true});
-    } catch (err: any) {
-        res.status(400).json({ success: false, error: err.message });
-    }
-});
-
-/*
-Delete contact between two users by there ID.
-GET http://localhost:3000/api/contactRequests/rejectContact
-
-Request:
-Header: -
-Body:
-{
-    "userIdOwner":"2",
-    "userIdRequester":"6"
-}
-
-Response:
-{
-    "success": true
-}
- */
-router.post("/rejectContact", async (req, res) => {
-    try {
-        const {userIdOwner, userIdRequester} = req.body;
-        if(!userIdOwner || !userIdRequester) return res.status(400).json({ error: "Missing or invalid user IDs" });
-        const a = await contactRequestsService.deleteContactRequest(userIdOwner, userIdRequester);
-
-        res.status(200).json({ success: true});
-    } catch (err: any) {
-        res.status(400).json({ success: false, error: err.message });
-    }
+router.get("/mine", requireAuth, async (req, res) => {
+    const userId = (req as AuthedRequest).userId;
+    const requests = await contactRequestsService.getContactRequests(userId);
+    res.status(200).json({ success: true, requests });
 });
 
 
 /*
-Returns the contact Requests of a specific user.
-
-GET: http://localhost:3000/api/contactRequests/getContactRequests/:userId
-
-userId: The user id of teh user who got the requests.
-
-Request:
-Header: -
-Body: -
-
-Response:
-{
-    "success": true,
-    "contacts": [
-        {
-            "useridOwner": 2,
-            "useridRequester": 5
-        },
-        {
-            "useridOwner": 2,
-            "useridRequester": 6
-        }
-    ]
-}
- */
-router.get("/getContactRequests/:userId", async (req,res) =>{
+Send a contact request by username
+POST /api/contactRequests/send
+Body: { "username": "..." }
+*/
+router.post("/send", requireAuth, async (req, res) => {
     try {
-        const userId = Number(req.params.userId);
+        const ownerId = (req as AuthedRequest).userId;
+        const username = String(req.body?.username ?? "").trim();
 
-        if(!userId){
-            return res.status(400).json({ error: "Missing or invalid user ID" });
-        }
+        if (!username) return res.status(400).json({ error: "Username mustn't be empty" });
 
-        const response = await contactRequestsService.getContactRequests(userId);
+        const target = await userService.getUserByUsername(username);
+        if (!target) return res.status(404).json({ error: "User not found" });
+        if (target.userid === ownerId) return res.status(400).json({ error: "Cannot send request to yourself" });
 
-        res.status(201).json({ success: true, contacts: response });
+        await contactRequestsService.createContactRequest(target.userid, ownerId);
+        res.status(201).json({ success: true });
     } catch (err: any) {
         res.status(400).json({ error: err.message });
     }
 });
 
+/*
+Accept a contact request (requester -> owner)
+POST /api/contactRequests/accept
+Body: { "requesterId": number }
+*/
+router.post("/accept", requireAuth, async (req, res) => {
+    try {
+        const ownerId = (req as AuthedRequest).userId;
+        const requesterId = Number(req.body?.requesterId);
+
+        if (!requesterId) return res.status(400).json({ error: "Missing requesterId" });
+
+        // create contact + delete request
+        await contactsService.createContact(ownerId, requesterId);
+        await contactRequestsService.deleteContactRequest(ownerId, requesterId);
+
+        res.status(200).json({ success: true });
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+/*
+Deny a contact request
+POST /api/contactRequests/deny
+Body: { "requesterId": number }
+*/
+router.post("/deny", requireAuth, async (req, res) => {
+    try {
+        const ownerId = (req as AuthedRequest).userId;
+        const requesterId = Number(req.body?.requesterId);
+
+        if (!requesterId) return res.status(400).json({ error: "Missing requesterId" });
+
+        await contactRequestsService.deleteContactRequest(ownerId, requesterId);
+        res.status(200).json({ success: true });
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
+    }
+});
 
 export default router;

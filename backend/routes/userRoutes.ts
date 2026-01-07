@@ -9,6 +9,8 @@ import { moodHistoryRepository } from "../repository/moodHistoryRepository";
 import multer from "multer"
 import path from "path"
 import sharp from "sharp";
+import { contactsService } from "../service/contactsService";
+import { moodHistoryService } from "../service/moodHistoryService";
 
 const upload = multer({ storage: multer.memoryStorage() });
 const router = Router();

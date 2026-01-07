@@ -5,8 +5,8 @@ class ContactRequestsReposetory {
         useridOwner: number;
         useridRequester: number;
     }): Promise<void> {
-        const sql = `INSERT INTO contactrequests (useridOwner, useridRequester)
-      VALUES (?, ?);`;
+        const sql = `INSERT INTO contactrequests (useridReciever, useridRequester)
+                     VALUES (?, ?);`;
         await pool.execute(sql, [
             cont.useridOwner,
             cont.useridRequester
@@ -14,7 +14,7 @@ class ContactRequestsReposetory {
     }
 
     async getContactRequestsByUserId(userid: number): Promise<any|null>{
-        const sql = `select * from contactrequests where useridOwner = ?;`;
+        const sql = `SELECT * FROM contactrequests WHERE useridReciever = ?;`;
         const [rows]: any = await pool.execute(sql, [userid]);
         return rows ?? null;
     }
@@ -26,10 +26,24 @@ class ContactRequestsReposetory {
     }
 
     async deleteContactRequests(useridOwner: number, useridRequester: number): Promise<any|null>{
-        const sql = `DELETE FROM contactrequests WHERE useridOwner = ? and useridRequester = ?;`;
+        const sql = `DELETE FROM contactrequests
+                     WHERE useridReciever = ? AND useridRequester = ?;`;
         const [rows]: any = await pool.execute(sql, [useridOwner, useridRequester]);
         return rows[0] ?? null;
     }
+
+    async areContacts(userA: number, userB: number): Promise<boolean> {
+        const sql = `
+    SELECT 1
+    FROM contacts
+    WHERE (userid1 = ? AND userid2 = ?)
+       OR (userid1 = ? AND userid2 = ?)
+    LIMIT 1
+  `;
+        const [rows]: any = await pool.execute(sql, [userA, userB, userB, userA]);
+        return rows.length > 0;
+    }
+
 }
 
 export const contactRequestsReposetory = new ContactRequestsReposetory();
