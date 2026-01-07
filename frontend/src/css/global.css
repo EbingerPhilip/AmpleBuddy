@@ -421,3 +421,94 @@ select:focus {
     stroke-width: 2;
     fill: none;
 }
+
+/* ===== Mood logging page ===== */
+
+.mood-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mood-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 1.25rem 1.5rem;
+    background: #f1f1f1;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.mood-button {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    color: #111;
+}
+
+.mood-button--red {
+    background: #f28b82;
+}
+
+.mood-button--yellow {
+    background: #fde293;
+}
+
+.mood-button--green {
+    background: #9ad2a5;
+}
+
+.mood-save-button {
+    width: 160px;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    border: none;
+    background: #bdbdbd;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.mood-button:disabled,
+.mood-save-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+/* Selected mood highlight */
+.mood-button.is-selected {
+    outline: 4px solid #6b9cff;
+    outline-offset: 3px;
+}
+
+.mood-button.is-selected:focus {
+    outline: 4px solid #6b9cff;
+    outline-offset: 3px;
+}
+/* Mood chart hover behaviour */
+.mood-chart circle {
+    cursor: help;
+}
+
+/* Mood chart hover behaviour (tooltip + hover on same element) */
+.mood-point .mood-hit {
+    fill: transparent;
+    cursor: help;
+}
+
+.mood-point:hover .mood-hit {
+    fill: rgba(107, 156, 255, 0.18); /* subtle highlight */
+}
+
+.mood-point:hover .mood-dot--green,
+.mood-point:hover .mood-dot--yellow,
+.mood-point:hover .mood-dot--red,
+.mood-point:hover .mood-dot--gray {
+    transform-origin: center;
+    transform-box: fill-box;
+    transform: scale(1.35);
+}

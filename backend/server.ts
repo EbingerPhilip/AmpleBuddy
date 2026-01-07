@@ -51,7 +51,6 @@ app.use("/api/contactRequests", contactRequestsRoutes);
 app.use("/api/groupchats", groupChatRoutes);
 app.use("/api/previews", previewRoutes);
 
-
 const HTTPS_KEY_PATH = process.env.HTTPS_KEY_PATH;
 const HTTPS_CERT_PATH = process.env.HTTPS_CERT_PATH;
 if (!HTTPS_KEY_PATH || !HTTPS_CERT_PATH) {
@@ -65,6 +64,12 @@ const httpsOptions = {
     key: fs.readFileSync(HTTPS_KEY_PATH),
     cert: fs.readFileSync(HTTPS_CERT_PATH),
 };
+
+// SPA fallback
+app.get(/^(?!\/api\/).*/, (_req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"));
+});
+
 
 const server = https.createServer(httpsOptions, app);
 server.listen(PORT, () => {

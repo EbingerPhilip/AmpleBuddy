@@ -199,11 +199,36 @@ router.delete("/profile-pics", requireAuth, async (req, res) => {
     res.json({ success: true });
 });
 
+/*
+Log current mood (JWT user) and attempt buddy match
+POST /api/users/mood
+Headers: Authorization: Bearer <token>
+Body: { "mood": "green" } // green | red | yellow | gray
+*/
+router.post("/mood", requireAuth, async (req, res) => {
+    try {
+        const userId = (req as AuthedRequest).userId;
+        const { mood } = req.body as { mood: EDailyMood };
+        if (!mood) return res.status(400).json({ error: "Missing mood" });
+
+        const result = await userService.logDailyMood(userId, mood);
+        res.status(200).json({ success: true, ...result });
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+
 router.get("/moodhistory", requireAuth, async (req, res) => {
     try {
         const userId = (req as AuthedRequest).userId;
         const rows = await moodHistoryRepository.getMoodHistory(userId);
-        res.status(200).json({ success: true, data: rows });
+        const data = rows.map((r: any) => ({
+            ...r,
+            date: typeof r.date === "string" ? r.date.slice(0, 10) : new Date(r.date).toISOString().slice(0, 10),
+        }));
+        res.status(200).json({ success: true, data });
+
     } catch (err: any) {
         res.status(400).json({ error: err.message });
     }

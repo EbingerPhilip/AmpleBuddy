@@ -126,14 +126,21 @@ export default function ViewProfilePage() {
     }
 
     function isoDay(d: Date): string {
-        return d.toISOString().slice(0, 10);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
     }
+
+
 
     function buildDailySeries(rows: MoodHistoryRow[], daysBack: number): { date: string; mood: "green" | "yellow" | "red" | "gray"; value: number }[] {
         const map = new Map<string, "green" | "yellow" | "red" | "gray">();
         for (const r of rows) {
-            map.set(r.date, r.mood);
+            const key = r.date.slice(0, 10);
+            map.set(key, r.mood);
         }
+
 
         const end = new Date();
         end.setHours(0, 0, 0, 0);
@@ -149,6 +156,31 @@ export default function ViewProfilePage() {
             const mood = map.get(d) ?? "gray"; // not logged => gray
             out.push({ date: d, mood, value: moodToValue(mood) });
             cur.setDate(cur.getDate() + 1);
+        }
+
+        return out;
+    }
+
+    function trimRecentGrayStages<T extends { mood: string }>(series: T[]): T[] {
+        const thresholds = [64, 48, 32, 16, 8];
+
+        let out = series.slice();
+
+        while (out.length > 0) {
+            // Count trailing gray days
+            let streak = 0;
+            for (let i = out.length - 1; i >= 0; i--) {
+                if (out[i].mood === "gray") streak++;
+                else break;
+            }
+
+            if (streak < 8) break;
+
+            // Remove the largest "stage" we can
+            const stage = thresholds.find((t) => streak >= t);
+            if (!stage) break;
+
+            out = out.slice(0, out.length - stage);
         }
 
         return out;
@@ -287,10 +319,13 @@ export default function ViewProfilePage() {
                         <h2 className="section-title">Previous moods</h2>
 
                         {(() => {
-                            const series = buildDailySeries(moodHistory, 90); // last 90 days
+                            const raw = buildDailySeries(moodHistory, 90); // last 90 days
+                            const series = trimRecentGrayStages(raw);
+
                             if (series.length === 0) {
                                 return <p>No mood history yet.</p>;
                             }
+
 
                             const w = 300;  // viewBox width
                             const h = 180;  // viewBox height
@@ -333,9 +368,12 @@ export default function ViewProfilePage() {
                                             const x = padX + i * xStep;
                                             const y = yForValue(p.value);
                                             return (
-                                                <circle key={p.date} cx={x} cy={y} r={4} className={clsForMood(p.mood)}>
-                                                    <title>{`${p.date}: ${p.mood}`}</title>
-                                                </circle>
+                                                <g key={p.date} className="mood-point">
+                                                    <circle cx={x} cy={y} r={10} className="mood-hit">
+                                                        <title>{`${p.date}: ${p.mood}`}</title>
+                                                    </circle>
+                                                    <circle cx={x} cy={y} r={4} className={clsForMood(p.mood)} />
+                                                </g>
                                             );
                                         })}
                                     </svg>
