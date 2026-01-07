@@ -50,7 +50,7 @@ export default function Sidebar() {
                         <FaTrafficLight aria-hidden="true" />
                     </NavLink>
                     <NavLink
-                        to="/home"
+                        to="/chats"
                         className={({ isActive }) =>
                             isActive ? "sidebar-icon active" : "sidebar-icon"
                         }

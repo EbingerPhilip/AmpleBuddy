@@ -8,6 +8,8 @@ import { useAuth } from "./state/AuthContext";
 import type { JSX } from "react";
 import AuthedLayout from "./layout/AuthedLayout";
 import MoodAmple from "./pages/MoodAmple";
+import ChatListPage from "./pages/chatList";
+
 
 function RequireAuth({ children }: { children: JSX.Element }) {
     const { isAuthenticated } = useAuth();
@@ -35,6 +37,8 @@ export default function App() {
                 <Route path="/chat/:chatId" element={<ViewChatPage />} />
                 <Route path="/profile" element={<ViewProfilePage />} />
                 < Route path="/mood" element={<MoodAmple />} />
+                <Route path="/chats" element={<ChatListPage />} />
+
             </Route>
 
             <Route path="*" element={<Navigate to="/login" replace />} />
