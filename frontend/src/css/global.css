@@ -226,3 +226,198 @@ select:focus {
 .chat-snippet {
     margin: 0 0 0.5rem 0;
 }
+
+/* ===== Profile page ===== */
+.profile-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.profile-picture {
+    width: 96px;
+    height: 96px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    background: #fff;
+    display: grid;
+    place-items: center;
+}
+
+.profile-picture-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-picture-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.profile-section {
+    margin-bottom: 1.5rem;
+}
+
+.section-title {
+    margin: 0 0 0.5rem 0;
+}
+
+.form-grid {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+.help-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #ddd;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-left: 0.35rem;
+    background: #fff;
+    cursor: help;
+}
+/* ===== Profile layout ===== */
+.profile-page {
+    max-width: 100%;
+    width: 100%;
+    margin: 2rem 0;
+    padding: 0 1rem;
+}
+
+.profile-grid {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.profile-main {
+    flex: 1 1 auto;
+    min-width: 280px;
+}
+
+.profile-side {
+    flex: 0 0 clamp(320px, 32vw, 420px);
+    margin-left: auto;
+}
+
+.profile-main,
+.profile-side {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    padding: 1rem;
+}
+
+@media (max-width: 900px) {
+    .profile-page {
+        margin: 1rem 0;
+        padding: 0 0.5rem;
+    }
+
+    .profile-grid {
+        flex-direction: column;
+    }
+
+    .profile-side {
+        flex: 1 1 auto;
+        width: 100%;
+        margin-left: 0;
+    }
+}
+
+/* ===== Inline toggles (checkbox + text + tooltip stays in one line) ===== */
+.toggle-row {
+    margin-top: 0.75rem;
+}
+
+.toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+}
+
+.toggle input[type="checkbox"] {
+    width: auto;
+    margin-top: 0; /* overrides global input spacing */
+}
+
+.help-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: help;
+}
+
+.help-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Tooltip text */
+.help-icon::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #222;
+    color: #fff;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    z-index: 10;
+}
+
+/* Show tooltip on hover */
+.help-icon:hover::after {
+    opacity: 1;
+}
+
+.inline-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.muted-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.mood-chart {
+    width: 100%;
+    border: 1px solid #ddd;
+    background: #fff;
+    padding: 0.75rem;
+}
+
+.mood-dot--green { fill: #1a7f37; }
+.mood-dot--yellow { fill: #b58100; }
+.mood-dot--red { fill: #c1121f; }
+.mood-dot--gray { fill: #9aa0a6; }
+
+.mood-line {
+    stroke: #bbb;
+    stroke-width: 2;
+    fill: none;
+}

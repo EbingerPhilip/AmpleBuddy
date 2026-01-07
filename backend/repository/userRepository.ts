@@ -10,10 +10,11 @@ class UserRepository {
     theme?: string;
     pronouns?: string;
     instantBuddy?: boolean;
+    dobHidden?: boolean;
   }): Promise<number> {
     const sql = `
-      INSERT INTO users (username, password, nicknames, dailyMood, dateOfBirth, theme, pronouns, instantBuddy)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO users (username, password, nicknames, dailyMood, dateOfBirth, dobHidden, theme, pronouns, instantBuddy)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const [result]: any = await pool.execute(sql, [
       user.username,
@@ -21,9 +22,11 @@ class UserRepository {
       user.nicknames,
       user.dailyMood ?? 'gray',
       user.dateOfBirth ?? null,
+      user.dobHidden ? 1 : 0,
       user.theme ?? 'light',
       user.pronouns ?? 'hidden',
-      user.instantBuddy ? 1 : 0
+      user.instantBuddy === undefined ? 1 : (user.instantBuddy ? 1 : 0),
+
     ]);
     return result.insertId;
   }
@@ -48,6 +51,7 @@ class UserRepository {
     nicknames?: string;
     dailyMood?: string;
     dateOfBirth?: Date | null;
+    dobHidden?: boolean;
     theme?: string;
     pronouns?: string;
     instantBuddy?: boolean;
@@ -60,6 +64,7 @@ class UserRepository {
         nicknames = COALESCE(?, nicknames),
         dailyMood = COALESCE(?, dailyMood),
         dateOfBirth = COALESCE(?, dateOfBirth),
+        dobHidden = COALESCE(?, dobHidden),
         theme = COALESCE(?, theme),
         pronouns = COALESCE(?, pronouns),
         instantBuddy = COALESCE(?, instantBuddy)
@@ -71,6 +76,7 @@ class UserRepository {
       updates.nicknames ?? null,
       updates.dailyMood ?? null,
       updates.dateOfBirth ?? null,
+      updates.dobHidden === undefined ? null : (updates.dateOfBirth ? 1 : 0),
       updates.theme ?? null,
       updates.pronouns ?? null,
       updates.instantBuddy === undefined ? null : (updates.instantBuddy ? 1 : 0),

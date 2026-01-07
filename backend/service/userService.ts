@@ -5,6 +5,7 @@ import { chatService } from "./chatService";
 import { scheduledMessageRepository } from "../repository/scheduledMessageRepository";
 import { buddyPoolRepository } from "../repository/buddypoolRepository";
 import { EDailyMood } from "../modules/user";
+import { moodHistoryRepository } from "../repository/moodHistoryRepository";
 
 type CreateUserInput = {
   username: string;
@@ -12,7 +13,7 @@ type CreateUserInput = {
   nicknames: string;
   dailyMood?: string;          // expects 'green' | 'orange' | 'red' | 'gray'
   dateOfBirth?: Date | null;
-  theme?: string;              // 'light' | 'dark' | 'moody'
+  theme?: string;              // 'light' | 'dark' | 'colourblind'
   pronouns?: string;           // 'he/him' | 'she/her' | 'they/them' | 'hidden'
   instantBuddy?: boolean;
 };
@@ -88,6 +89,7 @@ class UserService {
 
     // 1) Update mood in users table 
     await userRepository.updateUser(userId, { dailyMood: mood });
+    await moodHistoryRepository.upsertTodayMood(userId, mood);
 
     // 2) Only proceed with matching for instantBuddy = true
     if (!user.instantBuddy) return { matched: false };
