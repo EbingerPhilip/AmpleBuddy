@@ -1,20 +1,13 @@
-import {encryptTextBase64, encryptPasswordBase64 } from "./crypto";
-
 export type LoginResponse = {
     token: string;
     userId: number;
 };
 
 export async function apiLogin(username: string, password: string): Promise<LoginResponse> {
-    const passwordEnc = await encryptPasswordBase64(password);
-
-    // debug (remove later)
-    console.log("passwordEnc type/value preview:", typeof passwordEnc, passwordEnc.slice(0, 20));
-
-    const res = await fetch("/api/auth/login", {
+    const res = await fetch("/api/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, passwordEnc }),
+        body: JSON.stringify({ username, password }),
     });
 
     if (!res.ok) {
@@ -38,30 +31,16 @@ export type RegisterInput = {
 };
 
 export async function apiRegister(input: RegisterInput): Promise<void> {
-    // Encrypt personal data
-    const emailEnc = await encryptTextBase64(input.email.trim());
-    const passwordEnc = await encryptPasswordBase64(input.password);
-    const nicknameEnc = await encryptTextBase64(input.nickname.trim());
-
-    const dobEnc =
-        input.dateOfBirth && input.dateOfBirth.trim()
-            ? await encryptTextBase64(input.dateOfBirth.trim())
-            : null;
-
-    const pronounsEnc =
-        input.pronouns && input.pronouns.trim()
-            ? await encryptTextBase64(input.pronouns.trim())
-            : null;
-
-    const res = await fetch("/api/auth/register", {
+    const res = await fetch("/api/user/new", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            emailEnc,
-            passwordEnc,
-            nicknameEnc,
-            dateOfBirthEnc: dobEnc,
-            pronounsEnc,
+            username: input.email,          // email = username
+            password: input.password,
+            nicknames: input.nickname,      // backend field name is nicknames (string)
+            dateOfBirth: input.dateOfBirth ?? null,
+            pronouns: input.pronouns ?? null,
+            // dailyMood/theme/instantBuddy not provided by the UI, ergo backend should handle defaults
         }),
     });
 
@@ -69,6 +48,7 @@ export async function apiRegister(input: RegisterInput): Promise<void> {
         let msg = "Registration failed.";
         try {
             const data = (await res.json()) as { error?: string };
+            console.log(data);
             if (data?.error) msg = data.error;
         } catch { /* empty */ }
         throw new Error(msg);

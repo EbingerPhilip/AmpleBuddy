@@ -4,8 +4,6 @@ import cors = require("cors");
 import https = require("https");
 import fs = require("fs");
 import dotenv = require("dotenv");
-import { registerSystemRoutes } from "./server/apiAuth";
-import { registerUserRoutes } from "./server/apiUser";
 import messageRoutes from "./routes/messageRoutes";
 import  ScheduledMessageRoutes from "./routes/scheduledMessageRoutes";
 import chatRoutes from "./routes/chatRoutes";
@@ -43,18 +41,15 @@ app.get("/", (_req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));
 });
 
-registerSystemRoutes(app);
-registerUserRoutes(app);
 app.use("/api/messages", messageRoutes);
 app.use("/api/scheduledMessage", ScheduledMessageRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/preferences", preferencesRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/user", userRoutes);
 app.use("/api/contacts", contactRoutes);
 app.use("/api/contactRequests", contactRequestsRoutes);
 app.use("/api/groupchats", groupChatRoutes);
 app.use("/api/previews", previewRoutes);
-
 
 const HTTPS_KEY_PATH = process.env.HTTPS_KEY_PATH;
 const HTTPS_CERT_PATH = process.env.HTTPS_CERT_PATH;
@@ -69,6 +64,12 @@ const httpsOptions = {
     key: fs.readFileSync(HTTPS_KEY_PATH),
     cert: fs.readFileSync(HTTPS_CERT_PATH),
 };
+
+// SPA fallback
+app.get(/^(?!\/api\/).*/, (_req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"));
+});
+
 
 const server = https.createServer(httpsOptions, app);
 server.listen(PORT, () => {

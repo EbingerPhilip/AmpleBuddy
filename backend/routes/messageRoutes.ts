@@ -1,5 +1,8 @@
 import express from "express"; 
 import { messageService } from "../service/messageService";
+import { requireAuth, type AuthedRequest } from "../modules/authMiddleware";
+import { chatRepository } from "../repository/chatRepository";
+
 
 const router = express.Router();
 
@@ -14,24 +17,27 @@ Body (raw JSON):
   "text": "Hello, this is a test message"
 }
 */
-router.post("/new", async (req, res) => {
-  try {
-    const sender = req.body?.sender;
-    const chatId = req.body?.chatId;
-    const text = req.body?.text;
-    
-    console.log("Request body:", req.body);
-    
-    if (!sender || !chatId || !text) {
-      return res.status(400).json({ error: "Missing required fields: userId, chatId, text" });
+router.post("/new", requireAuth, async (req, res) => {
+    try {
+        const sender = (req as AuthedRequest).userId;
+        const chatId = req.body?.chatId;
+        const text = req.body?.text;
+
+        if (!chatId || !text) {
+            return res.status(400).json({ error: "Missing required fields: chatId, text" });
+        }
+        const isMember = await chatRepository.isUserInChat(Number(chatId), sender);
+        if (!isMember) {
+            return res.status(403).json({ error: "Not a member of this chat" });
+        }
+
+        const id = await messageService.sendMessage(sender, Number(chatId), text);
+        res.status(201).json({ success: true, messageId: id });
+    } catch (error: any) {
+        res.status(400).json({ error: error.message });
     }
-    
-    const id = await messageService.sendMessage(Number(sender), Number(chatId), text);
-    res.status(201).json({ success: true, messageId: id });
-  } catch (error: any) {
-    res.status(400).json({ error: error.message });
-  }
 });
+
 
 /*
 Get a message by its ID
@@ -76,15 +82,23 @@ router.put("/:id", async (req, res) => {
 Get all messages for a chat (ordered by time, oldest first)
 GET http://localhost:3000/api/messages/chat/:chatId
 */
-router.get("/chat/:chatId", async (req, res) => {
-  try {
-    const chatId = Number(req.params.chatId);
-    const messages = await messageService.getChatMessages(chatId);
-    res.status(200).json({ success: true, data: messages });
-  } catch (error: any) {
-    res.status(400).json({ error: error.message });
-  }
+router.get("/chat/:chatId", requireAuth, async (req, res) => {
+    try {
+        const userId = (req as AuthedRequest).userId;
+        const chatId = Number(req.params.chatId);
+
+        const isMember = await chatRepository.isUserInChat(chatId, userId);
+        if (!isMember) {
+            return res.status(403).json({ error: "Not a member of this chat" });
+        }
+
+        const messages = await messageService.getChatMessages(chatId);
+        res.status(200).json({ success: true, data: messages });
+    } catch (error: any) {
+        res.status(400).json({ error: error.message });
+    }
 });
+
 
 /*
 Delete a message

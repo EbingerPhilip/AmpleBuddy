@@ -35,7 +35,14 @@ class ChatRepository {
     return rows.map((row: any) => row.messageId);
   }
 
-  // returns only chatids for given user
+  async isUserInChat(chatId: number, userId: number): Promise<boolean> {
+      const sql = `SELECT 1 FROM chatmembers WHERE chatid = ? AND userid = ? LIMIT 1`;
+      const [rows]: any = await pool.execute(sql, [chatId, userId]);
+      return rows.length > 0;
+    }
+
+
+    // returns only chatids for given user
    async getUserChatIds(userId: number): Promise<number[]> {
     const sql = `SELECT DISTINCT cm.chatid FROM chatmembers cm WHERE cm.userid = ?`;
     const [rows]: any = await pool.execute(sql, [userId]);

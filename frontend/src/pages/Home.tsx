@@ -4,12 +4,25 @@ import { useAuth } from "../state/AuthContext";
 import { apiGetMyChats, type Chat } from "../services/apiUser.ts";
 
 function getChatDisplayName(chat: Chat, currentUserId: number): string {
-    // For 1–1 chats: name is the other user
+    // Group chats: use group name
+    if (chat.isGroup) return chat.groupName ?? "Chat";
+
+    // 1–1 chats: name is the other user
     const other = chat.members.find((m) => m.userId !== currentUserId);
     if (other) return other.nickname || other.username;
 
-    // Fallback (shouldn't happen for 1–1)
     return "Chat";
+}
+
+function truncate27(s: string): string {
+    return s.length > 27 ? s.slice(0, 27) + "..." : s;
+}
+
+function getChatSnippet(chat: Chat): string {
+    if (!chat.lastMessage) return "No messages yet.";
+    const sender = chat.lastMessage.senderNickname || "Unknown";
+    const text = chat.lastMessage.content ?? "";
+    return truncate27(`${sender}: ${text}`);
 }
 
 export default function HomePage() {
@@ -47,7 +60,7 @@ export default function HomePage() {
         return chats.map((c) => ({
             chatId: c.chatId,
             title: getChatDisplayName(c, userId),
-            last: c.lastMessage?.content ?? "No messages yet.",
+            last: getChatSnippet(c),
         }));
     }, [chats, userId]);
 

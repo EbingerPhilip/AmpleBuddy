@@ -8,7 +8,7 @@ export enum EDailyMood {
 export enum ETheme {
   light = 'light',
   dark = 'dark',
-  moody = 'moody'
+  colourblind = 'colourblind'
   // fucking vampire
 }
 

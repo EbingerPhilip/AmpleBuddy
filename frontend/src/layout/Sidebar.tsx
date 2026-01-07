@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../state/AuthContext";
 import { FiUser, FiHome, FiLogOut } from "react-icons/fi";
 import { FaTrafficLight } from "react-icons/fa";
+import { LuMessageCircle, LuContact } from "react-icons/lu";
 
 export default function Sidebar() {
     const { logout } = useAuth();
@@ -48,6 +49,26 @@ export default function Sidebar() {
                     >
                         <FaTrafficLight aria-hidden="true" />
                     </NavLink>
+                    <NavLink
+                        to="/chats"
+                        className={({ isActive }) =>
+                            isActive ? "sidebar-icon active" : "sidebar-icon"
+                        }
+                        aria-label="Chats"
+                        title="Chats"
+                    >
+                        <LuMessageCircle aria-hidden="true" />
+                    </NavLink>
+                    <NavLink
+                        to="/contacts"
+                        className={({ isActive }) => (isActive ? "sidebar-icon active" : "sidebar-icon")}
+                        aria-label="Contacts"
+                        title="Contacts"
+                    >
+                        <LuContact />
+                    </NavLink>
+
+
                 </div>
 
                 <button

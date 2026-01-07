@@ -19,6 +19,7 @@ class PreviewRepository {
         c.chatId,
         0 AS \`group\`,
         m.sender,
+        (SELECT nicknames FROM users WHERE userid = m.sender) AS sendernickname,
         m.text,
         (SELECT userid FROM chatmembers WHERE chatid = c.chatId AND userid != ?) AS otherUserId,
         (SELECT nicknames FROM users WHERE userid = (
@@ -113,7 +114,7 @@ class PreviewRepository {
             (SELECT nicknames FROM users WHERE userid = (
               SELECT userid FROM chatmembers WHERE chatid = c.chatId AND userid != ?
             )) AS otherUserNickname,
-            NULL AS sendernickname,
+            (SELECT nicknames FROM users WHERE userid = m.sender) AS sendernickname,
             NULL AS groupname,
             m.messageId
           FROM chatdata c
