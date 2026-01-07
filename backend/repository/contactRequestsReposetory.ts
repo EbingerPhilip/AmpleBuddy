@@ -32,17 +32,18 @@ class ContactRequestsReposetory {
         return rows[0] ?? null;
     }
 
-    async areContacts(userA: number, userB: number): Promise<boolean> {
+    async areContacts(userid1: number, userid2: number): Promise<boolean> {
         const sql = `
-    SELECT 1
-    FROM contacts
-    WHERE (userid1 = ? AND userid2 = ?)
-       OR (userid1 = ? AND userid2 = ?)
-    LIMIT 1
-  `;
-        const [rows]: any = await pool.execute(sql, [userA, userB, userB, userA]);
+            SELECT 1
+            FROM contacts
+            WHERE (userid1 = ? AND userid2 = ?)
+               OR (userid1 = ? AND userid2 = ?)
+                LIMIT 1;
+        `;
+        const [rows]: any = await pool.execute(sql, [userid1, userid2, userid2, userid1]);
         return rows.length > 0;
     }
+
 
 }
 

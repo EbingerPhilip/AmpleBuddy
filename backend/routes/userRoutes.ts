@@ -9,8 +9,6 @@ import { moodHistoryRepository } from "../repository/moodHistoryRepository";
 import multer from "multer"
 import path from "path"
 import sharp from "sharp";
-import { contactsService } from "../service/contactsService";
-import { moodHistoryService } from "../service/moodHistoryService";
 
 const upload = multer({ storage: multer.memoryStorage() });
 const router = Router();
@@ -345,26 +343,6 @@ router.delete("/:userId/delete", async (req, res) => {
 
     await userService.deleteUserAccount(userId);
     res.status(200).json({ success: true, message: "User account deleted successfully" });
-  } catch (err: any) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-/*
-Log current mood and attempt buddy match
-POST http://localhost:3000/api/users/:userId/mood
-Headers: Content-Type: application/json
-Body:
-{ "mood": "green" } // green | red | yellow | gray
-*/
-router.post("/:userId/mood", async (req, res) => {
-  try {
-    const userId = Number(req.params.userId);
-    const { mood } = req.body as { mood: EDailyMood };
-    if (!mood) return res.status(400).json({ error: "Missing mood" });
-
-    const result = await userService.logDailyMood(userId, mood);
-    res.status(200).json({ success: true, ...result });
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }

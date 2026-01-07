@@ -10,6 +10,7 @@ import AuthedLayout from "./layout/AuthedLayout";
 import MoodAmple from "./pages/MoodAmple";
 import ChatListPage from "./pages/ChatList.tsx";
 import ContactListPage from "./pages/ContactList.tsx";
+import ContactProfilePage from "./pages/ContactProfile";
 
 
 function RequireAuth({ children }: { children: JSX.Element }) {
@@ -40,7 +41,7 @@ export default function App() {
                 < Route path="/mood" element={<MoodAmple />} />
                 <Route path="/chats" element={<ChatListPage />} />
                 <Route path="/contacts" element={<ContactListPage />} />
-
+                <Route path="/contact/:userId" element={<ContactProfilePage />} />
 
             </Route>
 

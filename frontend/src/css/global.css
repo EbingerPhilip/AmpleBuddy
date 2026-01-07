@@ -717,8 +717,14 @@ select:focus {
     text-decoration: none;
     color: inherit;
     line-height: 1;
+    vertical-align: middle;
 }
 
 .contact-profile-link svg {
     display: block;
 }
+.mood-chart-caption {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.85rem;
+}
+

@@ -60,8 +60,8 @@ export default function ViewProfilePage() {
             const pPron = (p.pronouns ?? "hidden");
             setPronouns(pPron === "hidden" ? "prefer not to say" : (pPron as PronounsOption));
 
-            setDobHidden(Boolean(p.dobHidden));
-            setInstantBuddy(Number(p.instantBuddy) === 1);
+            setDobHidden(p.dobHidden === 1);
+            setInstantBuddy(p.instantBuddy === 1);
 
         } catch (e: unknown) {
             setError(e instanceof Error ? e.message :  "Failed to load profile");
@@ -72,7 +72,6 @@ export default function ViewProfilePage() {
 
     useEffect(() => {
         void load();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     async function onSave() {
@@ -84,16 +83,17 @@ export default function ViewProfilePage() {
                 nicknames?: string;
                 pronouns?: PronounsOption;
                 dateOfBirth?: string;
-                dobHidden?: boolean;
-                instantBuddy?: boolean;
+                dobHidden?: 0 | 1;
+                instantBuddy?: 0 | 1;
                 theme?: "light" | "dark" | "colourblind";
             } = {
                 nicknames: nickname,
                 theme,
                 pronouns,
-                dobHidden,
-                instantBuddy,
+                dobHidden: dobHidden ? 1 : 0,
+                instantBuddy: instantBuddy ? 1 : 0,
             };
+
 
             // allow setting DOB only if not present yet
             const hasDob = !!toIsoDateOnly(profile.dateOfBirth);
@@ -294,7 +294,7 @@ export default function ViewProfilePage() {
                             </li>
 
                             <li><strong>Theme:</strong> {profile.theme}</li>
-                            <li><strong>InstantBuddy:</strong> {Number(profile.instantBuddy) === 1 ? "On" : "Off"}</li>
+                            <li><strong>InstantBuddy:</strong> {profile.instantBuddy === 1 ? "On" : "Off"}</li>
                         </ul>
                     </section>
 

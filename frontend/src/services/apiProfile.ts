@@ -14,14 +14,25 @@ export type MyProfile = {
     nicknames: string;
     dailyMood: string;
     dateOfBirth: string | null;
-    dobHidden: number | 0 | 1;
     theme: "light" | "dark" | "colourblind";
     pronouns: string;
-    instantBuddy: number | 0 | 1;
+    dobHidden: 0 | 1;
+    instantBuddy: 0 | 1;
     hasProfilePic: boolean;
     profilePicUrl: string | null;
     preferences: BuddyPreferences | null;
     moodHistory: string[];
+};
+
+export type ContactPublicProfile = {
+    userid: number;
+    nicknames: string;
+    dailyMood: string;
+    dateOfBirth: string | null;
+    dobHidden: number | 0 | 1;
+    pronouns: string;
+    hasProfilePic: boolean;
+    profilePicUrl: string | null;
 };
 
 export type Mood = "green" | "yellow" | "red" | "gray";
@@ -50,8 +61,8 @@ export async function apiUpdateMyProfile(updates: {
     nicknames?: string;
     pronouns?: PronounsOption;
     dateOfBirth?: string; // YYYY-MM-DD
-    dobHidden?: boolean;
-    instantBuddy?: boolean;
+    dobHidden?: 0 | 1;
+    instantBuddy?: 0 | 1;
     theme?: "light" | "dark" | "colourblind";
 }): Promise<void> {
     const res = await authFetch("/api/user/edit", {
@@ -81,3 +92,18 @@ export async function apiDeleteProfilePic(): Promise<void> {
     const res = await authFetch("/api/user/profile-pics", { method: "DELETE" });
     if (!res.ok) throw new Error("Failed to delete profile picture");
 }
+
+export async function apiGetContactProfile(userId: number): Promise<ContactPublicProfile> {
+    const res = await authFetch(`/api/contacts/${userId}`);
+    if (!res.ok) throw new Error("Failed to load contact profile");
+    const body = await res.json();
+    return body.data as ContactPublicProfile;
+}
+
+export async function apiGetContactMoodHistory(userId: number): Promise<MoodHistoryRow[]> {
+    const res = await authFetch(`/api/contacts/${userId}/moodhistory`);
+    if (!res.ok) throw new Error("Failed to load contact mood history");
+    const body = await res.json();
+    return body.data as MoodHistoryRow[];
+}
+
