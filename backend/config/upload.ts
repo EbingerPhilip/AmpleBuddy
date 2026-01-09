@@ -1,5 +1,16 @@
 import multer from "multer";
 import path from "path";
+import dotenv = require("dotenv");
+
+dotenv.config({
+  path: path.resolve(__dirname, "../.env")
+});
+
+var  maxFileSize = Number(process.env.MaxFileSizeMB);
+if (!maxFileSize){
+throw Error('failed to read .env file')
+} 
+maxFileSize = maxFileSize  * 1024 * 1024 
 
 const uploadDir = path.join(
   __dirname,
@@ -22,6 +33,6 @@ const storage = multer.diskStorage({
 export const upload = multer({
   storage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB
+    fileSize: maxFileSize
   },
 });

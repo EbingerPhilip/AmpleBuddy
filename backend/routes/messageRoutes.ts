@@ -83,9 +83,9 @@ router.put("/:id", async (req, res) => {
 Get all messages for a chat (ordered by time, oldest first)
 GET http://localhost:3000/api/messages/chat/:chatId
 */
-router.get("/chat/:chatId", requireAuth, async (req, res) => {
+router.get("/chat/:chatId",  async (req, res) => {    //requireAuth,
     try {
-        const userId = (req as AuthedRequest).userId;
+        const userId = req.body?.userId;              //(req as AuthedRequest).userId;
         const chatId = Number(req.params.chatId);
 
         const isMember = await chatRepository.isUserInChat(chatId, userId);
@@ -126,9 +126,20 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-router.post("/sendFile",  upload.single("file"), async (req, res) => {
+/*
+Send a new message to a chat
+POST http://localhost:3000/api/messages/new
+Headers: Content-Type: application/json
+Body (form-data):
+{
+  "chatId": 5,
+  "text": "Hello, this is a test message"
+  "file": example.docx
+}
+*/
+router.post("/sendFile", requireAuth,  upload.single("file"), async (req, res) => {
     try {
-        const sender = req.body?.sender; //(req as AuthedRequest).userId;
+        const sender = (req as AuthedRequest).userId;
         const chatId = req.body?.chatId;
         const message = req.body?.text;
         const file = req.file;
