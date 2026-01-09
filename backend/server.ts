@@ -36,6 +36,11 @@ app.use(
   "/profile-pics",
   express.static(path.join(__dirname, "../backend/public/profile-pics"))
 );
+app.use(
+  "/documents",
+  express.static(path.join(__dirname, "../backend/public/documents"))
+);
+
 
 app.get("/", (_req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));

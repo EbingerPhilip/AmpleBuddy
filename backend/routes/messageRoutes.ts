@@ -2,6 +2,7 @@ import express from "express";
 import { messageService } from "../service/messageService";
 import { requireAuth, type AuthedRequest } from "../modules/authMiddleware";
 import { chatRepository } from "../repository/chatRepository";
+import {upload} from "../config/upload";
 
 
 const router = express.Router();
@@ -123,6 +124,27 @@ router.delete("/:id", async (req, res) => {
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
+});
+
+router.post("/sendFile",  upload.single("file"), async (req, res) => {
+    try {
+        const sender = req.body?.sender; //(req as AuthedRequest).userId;
+        const chatId = req.body?.chatId;
+        const message = req.body?.text;
+        const file = req.file;
+        const link = 'https://localhost:3000/documents/' + file?.filename;
+        
+
+        if (!file) return res.status(400).send("No file uploaded");
+        if (!chatId) { return res.status(400).json({ error: "Missing required fields: chatId, text" }); }
+        const isMember = await chatRepository.isUserInChat(Number(chatId), sender);
+        if (!isMember) { return res.status(403).json({ error: "Not a member of this chat" }); }
+
+        const id = await messageService.sendFile(sender, chatId, message, link)
+        res.status(201).json({ success: true, messageId: id, link: link });
+    } catch (error: any) {
+        res.status(400).json({ error: error.message });
+    }
 });
 
 export default router;
