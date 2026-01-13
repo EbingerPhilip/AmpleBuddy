@@ -166,7 +166,7 @@ class BuddyPoolRepository {
     }
 
     // Rank candidates by priority
-    const sorted = candidates.sort((a: any, b: any) => {
+    const sorted = [...candidates].sort((a: any, b: any) => {
       // Priority 1: Age closest match (by dateOfBirth)
       if (dateOfBirth) {
         const aDiff = Math.abs(this.daysBetween(a.dateOfBirth, dateOfBirth));

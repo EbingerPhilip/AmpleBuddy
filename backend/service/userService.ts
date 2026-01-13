@@ -92,9 +92,9 @@ class UserService {
     console.log("[advancedBuddyMatchingGreen] EDailyMood:", EDailyMood);
     console.log("[advancedBuddyMatchingGreen] Searching for red buddy...");
     const buddy = await buddyPoolRepository.emergencyBuddyMatch(EDailyMood.red, 1);
-    console.log("[advancedBuddyMatchingGreen] Found buddy:", buddy);
       if (buddy) {
         const chatId = await this.MatchAndCreateChat(userId, buddy);
+        console.log("[advancedBuddyMatchingGreen] Found buddy for emergency matching! UserId:", buddy, "ChatId:", chatId);
         return { matched: true, chatId };
       }
     return { matched: false };
@@ -128,6 +128,7 @@ class UserService {
 
     if (buddy) {
         const chatId = await this.MatchAndCreateChat(userId, buddy);
+        console.log("[advancedBuddyMatchingRed] Matched with buddy:", buddy, "Chat ID:", chatId);
         return { matched: true, chatId };
 
       }
