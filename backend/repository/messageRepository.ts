@@ -73,7 +73,10 @@ async deleteMessagesByChat(chatId: number): Promise<void> {
 const sql = `DELETE FROM messages WHERE chatid = ?`;
 await pool.execute(sql, [chatId]);
 }
-
+    async saveMessageFile(messageId: number, chatId: number, link: string): Promise<void>{
+        const sql = `insert into messagefiles (messageid, chatid, link) Values (?, ?, ?)`
+        await pool.execute(sql, [messageId, chatId, link]);
+    }
 
 }
 

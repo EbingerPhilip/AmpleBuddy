@@ -83,7 +83,7 @@ router.put("/:id", async (req, res) => {
 Get all messages for a chat (ordered by time, oldest first)
 GET http://localhost:3000/api/messages/chat/:chatId
 */
-router.get("/chat/:chatId",  async (req, res) => {    //requireAuth,
+router.get("/chat/:chatId", async (req, res) => {    //requireAuth,
     try {
         const userId = req.body?.userId;              //(req as AuthedRequest).userId;
         const chatId = Number(req.params.chatId);
