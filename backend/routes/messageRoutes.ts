@@ -83,10 +83,14 @@ router.put("/:id", async (req, res) => {
 Get all messages for a chat (ordered by time, oldest first)
 GET http://localhost:3000/api/messages/chat/:chatId
 */
-router.get("/chat/:chatId", async (req, res) => {    //requireAuth,
+router.get("/chat/:chatId", requireAuth, async (req, res) => {
     try {
-        const userId = req.body?.userId;              //(req as AuthedRequest).userId;
+        const userId = (req as AuthedRequest).userId;
         const chatId = Number(req.params.chatId);
+
+        if (!Number.isFinite(chatId) || chatId <= 0) {
+            return res.status(400).json({ error: "Invalid chatId" });
+        }
 
         const isMember = await chatRepository.isUserInChat(chatId, userId);
         if (!isMember) {
@@ -99,6 +103,7 @@ router.get("/chat/:chatId", async (req, res) => {    //requireAuth,
         res.status(400).json({ error: error.message });
     }
 });
+
 
 
 /*

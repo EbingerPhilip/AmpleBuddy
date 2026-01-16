@@ -2,7 +2,8 @@ import "../css/global.css";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../state/AuthContext";
-import { apiGetChatMessages, apiSendChatMessage, apiGetChatTitle, type ChatMessageRow } from "../services/apiChat";
+import { apiGetChatMessages, apiGetChatTitle, type ChatMessageRow } from "../services/apiChat";
+import { enterChat, onIncomingMessage, socketSendMessage } from "../services/sockets";
 
 function formatTime(iso: string): string {
     const d = new Date(iso);
@@ -52,6 +53,33 @@ export default function ViewChatPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [numericChatId]);
     useEffect(() => {
+        if (!Number.isFinite(numericChatId) || numericChatId <= 0) return;
+        if (userId == null) return;
+
+        let off: (() => void) | null = null;
+        let cancelled = false;
+
+        (async () => {
+            // Ensure we are connected + joined before listening
+            await enterChat(userId, numericChatId);
+            if (cancelled) return;
+
+            off = onIncomingMessage((payload) => {
+                console.log("[socket] incoming sendmessage", payload);
+                void load();
+            });
+        })();
+
+        return () => {
+            cancelled = true;
+            off?.();
+            // IMPORTANT: do NOT disconnect here, otherwise you miss broadcasts.
+            // disconnectSocket();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [numericChatId, userId]);
+
+    useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
     }, [messages]);
 
@@ -65,7 +93,8 @@ export default function ViewChatPage() {
         try {
             setSending(true);
             setError(null);
-            await apiSendChatMessage(numericChatId, text);
+            if (userId == null) throw new Error("You must be logged in to send messages.");
+            await socketSendMessage(userId, numericChatId, text);
             setDraft("");
             await load();
             messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

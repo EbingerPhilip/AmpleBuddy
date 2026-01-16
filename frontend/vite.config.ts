@@ -12,12 +12,23 @@ export default defineConfig({
   ],
   server: {
     port: 4000, // <-- set your desired port here
-    proxy: {
-        "/api" : {
-            target: "https://localhost:3000",
-            secure: false,
-            changeOrigin: true,
-        }
-    }
+      proxy: {
+          "/api": {
+              target: "https://localhost:3000",
+              secure: false,
+              changeOrigin: true,
+          },
+          "/profile-pics": {
+              target: "https://localhost:3000",
+              secure: false,
+              changeOrigin: true,
+          },
+          "/documents": {
+              target: "https://localhost:3000",
+              secure: false,
+              changeOrigin: true,
+          },
+      }
+
   }
 })

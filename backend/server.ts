@@ -89,5 +89,11 @@ server.listen(PORT, () => {
     console.log(`[BOOT] Server running at https://localhost:${PORT}`);
 });
 
-const io = new Server(server);
-configureSockets(io)
+const io = new Server(server, {
+    cors: {
+        origin: ["http://localhost:4000", "https://localhost:3000"],
+        methods: ["GET", "POST"],
+    },
+});
+
+configureSockets(io);
