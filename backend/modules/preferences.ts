@@ -43,6 +43,15 @@ export class Preferences {
   }
     */
 
+  // Move to utils file?
+  // Helper for BuddyMatching: Calculate date of birth from age, assuming today is the birthday
+  static getDateOfBirthFromAge(age: number): Date {
+    const today = new Date();
+    const birthDate = new Date(today);
+    birthDate.setFullYear(birthDate.getFullYear() - age);
+    return birthDate;
+  }
+
   public getUserId(): number {
     return this.userid;
   }

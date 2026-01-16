@@ -52,7 +52,7 @@ export class User {
     this.instantBuddy = instantBuddy;
   }
 
-    // private helper method to calculate age from date of birth (provided from user object)
+  // private helper method to calculate age from date of birth (provided from user object)
   private calculateAge(dateOfBirth: Date): number {
     const today = new Date();
     const birthDate = new Date(dateOfBirth);
@@ -67,5 +67,3 @@ export class User {
     return age;
   }
 }
-
-module.exports = { User };
