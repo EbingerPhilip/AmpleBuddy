@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { previewService } from "../service/previewService";
 import { requireAuth, AuthedRequest } from "../modules/authMiddleware";
-import { decrypt } from "../config/encryption";
 
 const router = Router();
 
@@ -29,25 +28,20 @@ Returns (200):
 Headers: Content-Type: application/json
 */
 router.get("/chats/all", requireAuth, async (req, res) => {
-  try {
-    const userId = (req as AuthedRequest).userId;
-    const groupParam = req.query.group as string | undefined;
+    try {
+        const userId = (req as AuthedRequest).userId;
+        const groupParam = req.query.group as string | undefined;
 
-    // Note to self: There is no point in using Query Paramenters, if we dont pass them on to the service!
-    let group: boolean | undefined = undefined;
-    if (groupParam === "true") { group = true; }
-    else if (groupParam === "false") { group = false; }
+        // Note to self: There is no point in using Query Paramenters, if we dont pass them on to the service!
+        let group: boolean | undefined = undefined;
+        if (groupParam === "true") { group = true; }
+        else if (groupParam === "false") {group = false; }
 
-    const previews = await previewService.loadAllChatPreviewsForUser(userId, group);
-
-    res.json(previews.map((row: any) => ({
-      ...row,
-      text: row.text ? decrypt(row.text) : null
-    })));
-
-  } catch (err) {
-    res.status(400).json({ error: (err as Error).message });
-  }
+        const previews = await previewService.loadAllChatPreviewsForUser(userId, group);
+        res.json(previews);
+    } catch (err) {
+        res.status(400).json({ error: (err as Error).message });
+    }
 });
 
 /*
@@ -71,10 +65,7 @@ router.get("/chats/:userId", async (req, res) => {
   try {
     const userId = Number(req.params.userId);
     const previews = await previewService.loadMinimalChatPreviewsForUser(userId);
-    res.json(previews.map((row: any) => ({
-      ...row,
-      text: row.text ? decrypt(row.text) : null
-    })));
+    res.json(previews);
   } catch (err) {
     res.status(400).json({ error: (err as Error).message });
   }
@@ -102,10 +93,7 @@ router.get("/groupchats/:userId", async (req, res) => {
   try {
     const userId = Number(req.params.userId);
     const previews = await previewService.loadMinimalGroupChatPreviewsForUser(userId);
-    res.json(previews.map((row: any) => ({
-      ...row,
-      text: row.text ? decrypt(row.text) : null
-    })));
+    res.json(previews);
   } catch (err) {
     res.status(400).json({ error: (err as Error).message });
   }
