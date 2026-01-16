@@ -30,6 +30,10 @@ class ChatService {
     return result;
   }
 
+  async getChatMembers (chatId: number): Promise<any[]> {
+    return await chatRepository.getChatMembers(chatId);
+  }
+
   async addMember(chatId: number, userId: number, requesterUserId: number): Promise<void> {
     const chat = await this.getChatById(chatId);
     
