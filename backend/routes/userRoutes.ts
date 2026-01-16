@@ -9,7 +9,6 @@ import { moodHistoryRepository } from "../repository/moodHistoryRepository";
 import multer from "multer"
 import path from "path"
 import sharp from "sharp";
-import { hashPassword, verifyPassword } from "../config/encryption";
 
 const upload = multer({ storage: multer.memoryStorage() });
 const router = Router();
@@ -41,8 +40,6 @@ router.post("/new", async (req, res) => {
         }
         username = username.trim();
         nicknames = nicknames.trim();
-        password = await hashPassword(password);
-        
         if (!username || !password || !nicknames) {
             return res.status(400).json({ error: "Missing required fields: username, password, nicknames" });
         }
@@ -133,8 +130,7 @@ router.post("/login", async (req, res) => {
         }
 
         // Note for self: DB currently saves passwords as plaintext, change this if we change that
-        const verify : boolean = await verifyPassword(user.password,password);
-        if (!verify) {
+        if (user.password !== password) {
             return res.status(401).json({ error: "Invalid credentials" });
         }
 
