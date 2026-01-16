@@ -56,6 +56,11 @@ class MessageService {
   async getChatMessages(chatId: number): Promise<any[]> {
   return messageRepository.getMessagesByChatId(chatId);
 }
+  async sendFile(sender: number, chatId: number,text: string, link: string): Promise<number>{
+    const id = await this.sendMessage(sender, chatId, text);
+    await messageRepository.saveMessageFile(id, chatId, link)
+    return id
+  }
 }
 
 export const messageService = new MessageService();

@@ -44,3 +44,4 @@ backend/node_modules/
 
 #profile pics
 backend/public/profile-pics/*
+backend/public/documents/*
