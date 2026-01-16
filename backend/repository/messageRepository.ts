@@ -44,9 +44,11 @@ class MessageRepository {
       m.sender,
       u.nicknames,
       m.text,
-      m.timeSent
+      m.timeSent,
+      f.link
     FROM messages m
     JOIN users u ON m.sender = u.userid
+    LEFT JOIN messagefiles f ON f.messageid = m.messageId
     WHERE m.chatid = ?
     ORDER BY m.timeSent ASC
   `;

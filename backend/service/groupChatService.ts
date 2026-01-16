@@ -1,6 +1,6 @@
 import { groupChatRepository } from "../repository/groupChatRepository";
 import { chatService } from "./chatService";
-import { GroupChat } from "../modules/groupchat";
+import { GroupChat } from "../modules/groupChat";
 
 class GroupChatService {
   async createGroupChat(
