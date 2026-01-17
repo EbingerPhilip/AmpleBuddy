@@ -1,4 +1,6 @@
 import { messageRepository } from "../repository/messageRepository";
+import { chatRepository } from "../repository/chatRepository";
+
 
 class MessageService {
     // Basic validation for message text - currently "not empty" and "max length"
@@ -30,8 +32,35 @@ class MessageService {
 
   // Sending a new message
   async sendMessage(sender: number, chatId: number, text: string): Promise<number> {
-    this.validateText(text);
-    return messageRepository.createMessage(sender, chatId, text);
+      this.validateText(text);
+
+      const isMember = await chatRepository.isUserInChat(chatId, sender);
+      if (!isMember) {
+          throw new Error("You are no longer a member of this chat.");
+      }
+
+      // Business rule: you cannot send messages to the deleted-user placeholder (userid = 1)
+      // for 1-to-1 chats. Also: if the other participant has decoupled, the chat will have
+      // only one remaining member -> treat that as "messaging a deleted user".
+      const chatData = await chatRepository.getChatById(chatId);
+      if (chatData && !chatData.group) {
+          const members = await chatRepository.getChatMembers(chatId);
+
+          // If the chat is no longer a real 1:1 (because the other user decoupled),
+          // block sending using the same deleted-user rule.
+          if (members.length !== 2) {
+              throw new Error("You can't send messages to a deleted user.");
+          }
+
+          const other = members.find((id) => id !== sender);
+          if (!other || other === 1) {
+              throw new Error("You can't send messages to a deleted user.");
+          }
+      }
+
+
+      return messageRepository.createMessage(sender, chatId, text);
+
   }
 
   // For pre-filling edit form - redundant?
@@ -56,11 +85,13 @@ class MessageService {
   async getChatMessages(chatId: number): Promise<any[]> {
   return messageRepository.getMessagesByChatId(chatId);
 }
-  async sendFile(sender: number, chatId: number,text: string, link: string): Promise<number>{
-    const id = await this.sendMessage(sender, chatId, text);
-    await messageRepository.saveMessageFile(id, chatId, link)
-    return id
-  }
+    async sendFile(sender: number, chatId: number, text: string, link: string): Promise<number> {
+        // sendMessage already enforces membership + deleted-user/decouple rules
+        const id = await this.sendMessage(sender, chatId, text);
+        await messageRepository.saveMessageFile(id, chatId, link);
+        return id;
+    }
+
 }
 
 export const messageService = new MessageService();

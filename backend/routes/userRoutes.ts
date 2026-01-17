@@ -56,7 +56,13 @@ router.post("/new", async (req, res) => {
         dateOfBirth = typeof dateOfBirth === "string" ? dateOfBirth : null;
 
         const instantBuddyRaw = instantBuddy;
-        instantBuddy = instantBuddyRaw === true || instantBuddyRaw === 1 || instantBuddyRaw === "1" ? 1 : 0;
+
+        // Default to TRUE if not provided
+        if (instantBuddyRaw === undefined || instantBuddyRaw === null) {
+            instantBuddy = 1;
+        } else {
+            instantBuddy = instantBuddyRaw === true || instantBuddyRaw === 1 || instantBuddyRaw === "1" ? 1 : 0;
+        }
 
         // Explicit enum validation
         const allowedMoods = new Set(["green", "yellow", "red", "grey"]);
@@ -201,6 +207,30 @@ router.delete("/profile-pics", requireAuth, async (req, res) => {
     if (fs.existsSync(abs)) fs.unlinkSync(abs);
 
     res.json({ success: true });
+});
+
+// Delete *own* account (Profile page)
+// POST /api/user/delete-account
+// Body: { "password": "<current password>" }
+router.post("/delete-account", requireAuth, async (req, res) => {
+    try {
+        const userId = (req as AuthedRequest).userId;
+        const { password } = req.body ?? {};
+
+        if (typeof password !== "string" || !password.trim()) {
+            return res.status(400).json({ error: "Password is required" });
+        }
+
+        await userService.deleteOwnAccount(userId, password);
+
+        // Best-effort: remove profile picture file
+        const abs = path.join(__dirname, "../../backend/public/profile-pics", `${userId}.png`);
+        if (fs.existsSync(abs)) fs.unlinkSync(abs);
+
+        return res.status(200).json({ success: true });
+    } catch (err: any) {
+        return res.status(400).json({ error: err.message });
+    }
 });
 
 /*

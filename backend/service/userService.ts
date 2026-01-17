@@ -7,6 +7,7 @@ import { buddyPoolRepository } from "../repository/buddypoolRepository";
 import { EDailyMood } from "../modules/user";
 import { moodHistoryRepository } from "../repository/moodHistoryRepository";
 import { Preferences } from "../modules/preferences";
+import { verifyPassword } from "../config/encryption";
 
 type CreateUserInput = {
   username: string;
@@ -48,7 +49,27 @@ class UserService {
     await userRepository.updateUser(userId, updates);
   }
 
-  // Delete user account and all associated data (if not relevant for other users, in which case pseudonymisation is performed)
+    /**
+     * Delete the *currently logged in* user.
+     * - Requires the correct password.
+     * - Pseudonymises chat membership + messages to userid=1.
+     * - Deletes chats that end up containing only userid 1 and/or 2.
+     */
+    async deleteOwnAccount(userId: number, plainPassword: string): Promise<void> {
+        if (userId === 1 || userId === 2) {
+            throw new Error("Cannot delete system users (userid=1 or userid=2)");
+        }
+
+        const user = await userRepository.getUserById(userId);
+        if (!user) throw new Error("User not found");
+
+        const ok = await verifyPassword(user.password, plainPassword);
+        if (!ok) throw new Error("Invalid password");
+
+        await userRepository.deleteUserAccountAndCleanup(userId, 1, 2);
+    }
+
+    // Delete user account and all associated data (if not relevant for other users, in which case pseudonymisation is performed)
   async deleteUserAccount(userId: number): Promise<void> {
     if (userId === 1) {
       throw new Error("Cannot delete fake user (userid=1)");
@@ -103,30 +124,49 @@ class UserService {
   // advanced matching logic considering pronouns, greenstreak, and age
   private async advancedBuddyMatchingRed(userId: number, mood: EDailyMood): Promise<BuddyMatchResult> {
     // fetch user preferences if any
-    const preferences = await preferencesRepository.getPreferencesByUserId(userId);
-    
-    // translate gender enum to pronouns enum for buddy matching
-    const genderToPronounsMap: { [key: string]: string } = {
-      'male': 'he/him',
-      'female': 'she/her',
-      'other': 'they/them',
-      'hidden': 'hidden'
-    };
-    const gender = preferences?.getGender?.() || null;
-    const pronounsPreference: string | null = gender ? (genderToPronounsMap[gender] ?? null) : null;
-    
-    // get minGreen and age from preferences, age is converted to dateOfBirth
-    const minGreenstreak = preferences?.getMinGreen?.() || null;
-    const age = preferences?.getAge?.() || null;
-    const dateOfBirth = age ? Preferences.getDateOfBirthFromAge(age) : null;
-    
-    const buddy = await buddyPoolRepository.findBestGreenBuddy(
-      pronounsPreference,
-      minGreenstreak,
-      dateOfBirth
-    );
+      const preferences: any = await preferencesRepository.getPreferencesByUserId(userId);
 
-    if (buddy) {
+// translate gender enum to pronouns enum for buddy matching
+      const genderToPronounsMap: { [key: string]: string } = {
+          male: "he/him",
+          female: "she/her",
+          other: "they/them",
+          hidden: "hidden",
+      };
+
+      const gender: string | null = preferences?.gender ?? null;
+      const pronounsPreference: string | null = gender ? (genderToPronounsMap[gender] ?? null) : null;
+
+      const minGreenstreak: number | null = preferences?.minGreen ?? null;
+
+// Age range support (preferred range). Keep old "age" as fallback.
+      const ageMin: number | null = preferences?.ageMin ?? null;
+      const ageMax: number | null = preferences?.ageMax ?? null;
+      const ageSingle: number | null = preferences?.age ?? null;
+
+// Convert range to DOB bounds (DOB between oldest and youngest)
+      const dobOldest = ageMax ? Preferences.getDateOfBirthFromAge(ageMax) : null; // older -> earlier
+      const dobYoungest = ageMin ? Preferences.getDateOfBirthFromAge(ageMin) : null;
+
+// Sorting target: midpoint of range if present, else single age
+      let dobTarget: Date | null = null;
+      if (ageMin && ageMax) {
+          const mid = Math.round((ageMin + ageMax) / 2);
+          dobTarget = Preferences.getDateOfBirthFromAge(mid);
+      } else if (ageSingle) {
+          dobTarget = Preferences.getDateOfBirthFromAge(ageSingle);
+      }
+
+      const buddy = await buddyPoolRepository.findBestGreenBuddy(
+          pronounsPreference,
+          minGreenstreak,
+          dobTarget,
+          dobOldest,
+          dobYoungest
+      );
+
+
+      if (buddy) {
         const chatId = await this.MatchAndCreateChat(userId, buddy);
         console.log("[advancedBuddyMatchingRed] Matched with buddy:", buddy, "Chat ID:", chatId);
         return { matched: true, chatId };

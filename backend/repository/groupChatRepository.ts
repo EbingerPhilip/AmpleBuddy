@@ -57,6 +57,11 @@ class GroupChatRepository {
     const sql = `UPDATE chatdata SET groupname = ? WHERE chatId = ? AND \`group\` = 1`;
     await pool.execute(sql, [groupname, chatId]);
   }
+
+  async updateGroupChatAdmin(chatId: number, admin: number): Promise<void> {
+      const sql = `UPDATE chatdata SET admin = ? WHERE chatId = ? AND \`group\` = 1`;
+      await pool.execute(sql, [admin, chatId]);
+  }
 }
 
 export const groupChatRepository = new GroupChatRepository();

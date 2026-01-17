@@ -19,9 +19,7 @@ export default function Sidebar() {
                 <div className="sidebar-top">
                     <NavLink
                         to="/profile"
-                        className={({ isActive }) =>
-                            isActive ? "sidebar-icon active" : "sidebar-icon"
-                        }
+                        className={({ isActive }) => (isActive ? "sidebar-icon active" : "sidebar-icon")}
                         aria-label="View profile"
                         title="Profile"
                     >
@@ -30,9 +28,7 @@ export default function Sidebar() {
 
                     <NavLink
                         to="/home"
-                        className={({ isActive }) =>
-                            isActive ? "sidebar-icon active" : "sidebar-icon"
-                        }
+                        className={({ isActive }) => (isActive ? "sidebar-icon active" : "sidebar-icon")}
                         aria-label="Home"
                         title="Home"
                     >
@@ -41,24 +37,22 @@ export default function Sidebar() {
 
                     <NavLink
                         to="/mood"
-                        className={({ isActive }) =>
-                            isActive ? "sidebar-icon active" : "sidebar-icon"
-                        }
+                        className={({ isActive }) => (isActive ? "sidebar-icon active" : "sidebar-icon")}
                         aria-label="Mood"
                         title="Mood"
                     >
                         <FaTrafficLight aria-hidden="true" />
                     </NavLink>
+
                     <NavLink
                         to="/chats"
-                        className={({ isActive }) =>
-                            isActive ? "sidebar-icon active" : "sidebar-icon"
-                        }
+                        className={({ isActive }) => (isActive ? "sidebar-icon active" : "sidebar-icon")}
                         aria-label="Chats"
                         title="Chats"
                     >
                         <LuMessageCircle aria-hidden="true" />
                     </NavLink>
+
                     <NavLink
                         to="/contacts"
                         className={({ isActive }) => (isActive ? "sidebar-icon active" : "sidebar-icon")}
@@ -67,8 +61,6 @@ export default function Sidebar() {
                     >
                         <LuContact />
                     </NavLink>
-
-
                 </div>
 
                 <button

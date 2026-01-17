@@ -127,19 +127,18 @@ Body (raw JSON):
   "userId": 2
 }
 */
-router.put("/:chatId/decouple", async (req, res) => {
+router.put("/:chatId/decouple", requireAuth, async (req, res) => {
   try {
     const chatId = Number(req.params.chatId);
-    const { userId } = req.body as { userId: number };
-    
+    const userId = (req as AuthedRequest).userId;
     if (!userId) {
       return res.status(400).json({ error: "Missing required field: userId" });
     }
-    
+
     const result = await chatService.decoupleUserFromChat(chatId, userId, 1);
-    res.status(200).json({ 
-      success: true, 
-      message: result.chatDeleted 
+    res.status(200).json({
+      success: true,
+      message: result.chatDeleted
         ? "User decoupled and chat deleted (no members left)"
         : "User decoupled and messages pseudonymized",
       ...result, // spread userDecoupled and chatDeleted flags

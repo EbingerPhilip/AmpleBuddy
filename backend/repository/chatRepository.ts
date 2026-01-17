@@ -35,13 +35,6 @@ class ChatRepository {
     return rows.map((row: any) => row.messageId);
   }
 
-  async isUserInChat(chatId: number, userId: number): Promise<boolean> {
-      const sql = `SELECT 1 FROM chatmembers WHERE chatid = ? AND userid = ? LIMIT 1`;
-      const [rows]: any = await pool.execute(sql, [chatId, userId]);
-      return rows.length > 0;
-    }
-
-
     // returns only chatids for given user
    async getUserChatIds(userId: number): Promise<number[]> {
     const sql = `SELECT DISTINCT cm.chatid FROM chatmembers cm WHERE cm.userid = ?`;
@@ -68,7 +61,15 @@ class ChatRepository {
     await pool.execute(sql, [chatId, userId]);
   }
 
-  // This is used for cleanup, once all members have left the chat (delete entry from chatdata table)
+    async isUserInChat(chatId: number, userId: number): Promise<boolean> {
+        const [rows]: any = await pool.execute(
+            `SELECT 1 FROM chatmembers WHERE chatid = ? AND userid = ? LIMIT 1`,
+            [chatId, userId]
+        );
+        return Array.isArray(rows) && rows.length > 0;
+    }
+
+    // This is used for cleanup, once all members have left the chat (delete entry from chatdata table)
   async deleteChat(chatId: number): Promise<void> {
   const sql = `DELETE FROM chatdata WHERE chatId = ?`;
   await pool.execute(sql, [chatId]);

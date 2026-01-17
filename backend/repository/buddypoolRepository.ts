@@ -130,12 +130,14 @@ class BuddyPoolRepository {
 
   Return the best match (userId) or null if none found.
   */
-  async findBestGreenBuddy(
-    pronouns: string | null,
-    greenstreak: number | null,
-    dateOfBirth: Date | null
-  ): Promise<{ userid: number; mood: EDailyMood; chatCount: number } | null> {
-    console.log ("Finding best green buddy with criteria:", { pronouns, greenstreak, dateOfBirth });
+    async findBestGreenBuddy(
+        pronouns: string | null,
+        greenstreak: number | null,
+        dateOfBirthTarget: Date | null,
+        dobOldest: Date | null,
+        dobYoungest: Date | null
+    ): Promise<{ userid: number; mood: EDailyMood; chatCount: number } | null> {
+    console.log ("Finding best green buddy with criteria:", { pronouns, greenstreak, dateOfBirthTarget });
     
     // Load all green buddies with chatCount below maxChatCount
     const [rows]: any = await pool.execute(
@@ -164,13 +166,28 @@ class BuddyPoolRepository {
         candidates = filteredByGreenstreak;
       }
     }
+    // Smart Filter 3: Age range (DOB bounds) if specified - only if matches exist
+    if (dobOldest && dobYoungest) {
+        const oldest = new Date(dobOldest).getTime();
+        const youngest = new Date(dobYoungest).getTime();
+        const filteredByAgeRange = candidates.filter((b: any) => {
+            if (!b.dateOfBirth) return false;
+            const t = new Date(b.dateOfBirth).getTime();
+            return t >= oldest && t <= youngest;
+        });
 
-    // Rank candidates by priority
+        if (filteredByAgeRange.length > 0) {
+            candidates = filteredByAgeRange;
+        }
+    }
+
+
+        // Rank candidates by priority
     const sorted = [...candidates].sort((a: any, b: any) => {
       // Priority 1: Age closest match (by dateOfBirth)
-      if (dateOfBirth) {
-        const aDiff = Math.abs(this.daysBetween(a.dateOfBirth, dateOfBirth));
-        const bDiff = Math.abs(this.daysBetween(b.dateOfBirth, dateOfBirth));
+        if (dateOfBirthTarget) {
+            const aDiff = Math.abs(this.daysBetween(a.dateOfBirth, dateOfBirthTarget));
+            const bDiff = Math.abs(this.daysBetween(b.dateOfBirth, dateOfBirthTarget));
         if (aDiff !== bDiff) return aDiff - bDiff;
       }
 
