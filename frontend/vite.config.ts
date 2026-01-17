@@ -12,7 +12,8 @@ export default defineConfig({
   ],
   server: {
     port: 4000, // <-- set your desired port here
-      proxy: {
+    host: true, // allows LAN access  
+    proxy: {
           "/api": {
               target: "https://localhost:3000",
               secure: false,
