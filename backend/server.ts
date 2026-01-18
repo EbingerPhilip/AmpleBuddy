@@ -16,7 +16,7 @@ import previewRoutes from "./routes/previewRoutes";
 import {Server} from 'socket.io';
 import {configureSockets} from "./routes/sockets"
 import {startupService} from "./service/startupService";
-
+import {scheduleDailyCleanup} from "./cleanup"
 
 dotenv.config();
 const app = express();
@@ -88,3 +88,4 @@ const io = new Server(server, {
 });
 
 configureSockets(io);
+scheduleDailyCleanup();
