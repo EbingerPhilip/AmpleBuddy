@@ -5,7 +5,8 @@ let socket: Socket | null = null;
 function ensureSocket(): Socket {
     if (socket) return socket;
 
-    socket = io("https://localhost:3000", {
+    socket = io({
+        path: "/socket.io",
         autoConnect: false,
         transports: ["websocket", "polling"],
         timeout: 10000,
