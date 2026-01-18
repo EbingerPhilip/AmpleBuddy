@@ -51,7 +51,8 @@ async function downloadViaBlob(url: string) {
 
     // filename from URL (fallback to a generic name)
     const cleanNoQuery = clean.split("?")[0];
-    const filename = (cleanNoQuery.split("/").pop() || "download").replace(/[^a-zA-Z0-9._-]/g, "_");
+    const dirtyfilename = (cleanNoQuery.split("/").pop() || "download").replace(/[^a-zA-Z0-9._-]/g, "_");
+    const filename = dirtyfilename.replace(/^file-\d+-\d+-/, "");
 
     const objUrl = URL.createObjectURL(blob);
     try {
