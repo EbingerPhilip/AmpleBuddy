@@ -1,6 +1,6 @@
-import { FormEvent, useId, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { apiRegister } from "../services/apiClient";
+import {FormEvent, useId, useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
+import {apiRegister} from "../services/apiClient";
 
 type Pronouns = "she/her" | "he/him" | "they/them" | "prefer not to say";
 
@@ -108,7 +108,7 @@ export default function RegisterPage() {
                 pronouns: pronouns ? (pronouns as Pronouns) : undefined,
             });
 
-            navigate("/login", { replace: true });
+            navigate("/login", {replace: true});
         } catch (err) {
             setError(err instanceof Error ? err.message : "Registration failed.");
         } finally {
@@ -210,7 +210,7 @@ export default function RegisterPage() {
                     {submitting ? "Registering…" : "Register"}
                 </button>
 
-                <p style={{ marginTop: "1rem" }}>
+                <p style={{marginTop: "1rem"}}>
                     Already have an account? <Link to="/login">Log in</Link>
                 </p>
             </form>

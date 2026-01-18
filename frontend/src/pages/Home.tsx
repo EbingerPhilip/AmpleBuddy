@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../state/AuthContext";
-import { apiGetMyChats, type Chat } from "../services/apiUser.ts";
+import {useEffect, useMemo, useState} from "react";
+import {Link} from "react-router-dom";
+import {useAuth} from "../state/AuthContext";
+import {apiGetMyChats, type Chat} from "../services/apiUser.ts";
 
 function getChatDisplayName(chat: Chat, currentUserId: number): string {
     // Group chats: use group name
@@ -26,7 +26,7 @@ function getChatSnippet(chat: Chat): string {
 }
 
 export default function HomePage() {
-    const { userId } = useAuth();
+    const {userId} = useAuth();
     const [chats, setChats] = useState<Chat[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -107,7 +107,9 @@ export default function HomePage() {
                         <li>The option to hide your age now actually does hide your age from your contacts</li>
                         <li>Pressing enter now will automatically send the message you are writing</li>
                         <li>You can now set your date of birth in case you forget during registration</li>
-                        <li>No more babies or time travelers ! Only people 18 years of age or older can now create accounts.</li>
+                        <li>No more babies or time travelers ! Only people 18 years of age or older can now create
+                            accounts.
+                        </li>
                     </ul>
                 </div>
 

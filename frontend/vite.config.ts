@@ -5,19 +5,20 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react({   
-      babel: {
-        plugins: [['babel-plugin-react-compiler']],
-      },
-    }),
-  ],
-  server: {
-    port: 4000,
-      https: {
-          key: fs.readFileSync(path.resolve(__dirname, "certs/localhost-key.pem")),
-          cert: fs.readFileSync(path.resolve(__dirname, "certs/localhost.pem")),
-      },
+    plugins: [
+        react({
+            babel: {
+                plugins: [['babel-plugin-react-compiler']],
+            },
+        }),
+    ],
+    server: {
+        port: 4000,
+        host: true, // allows LAN access
+        https: {
+            key: fs.readFileSync(path.resolve(__dirname, "certs/localhost-key.pem")),
+            cert: fs.readFileSync(path.resolve(__dirname, "certs/localhost.pem")),
+        },
 
       // Helps avoid HMR weirdness with HTTPS in some setups
       hmr: {

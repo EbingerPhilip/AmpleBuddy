@@ -1,4 +1,4 @@
-import { io, type Socket } from "socket.io-client";
+import {io, type Socket} from "socket.io-client";
 
 let socket: Socket | null = null;
 
@@ -41,12 +41,6 @@ async function ensureConnected(): Promise<Socket> {
     });
 }
 
-export function disconnectSocket(): void {
-    if (!socket) return;
-    socket.disconnect();
-    socket = null;
-}
-
 export async function enterChat(userId: number, chatId: number): Promise<void> {
     const s = await ensureConnected();
     s.emit("enterChat", userId, chatId);
@@ -59,7 +53,13 @@ export function onIncomingMessage(handler: (payload: any) => void): () => void {
 }
 
 export async function socketSendMessage(sender: number, chatId: number, text: string): Promise<number> {
-    const s = await ensureConnected();
+    let s: Socket;
+    try {
+        s = await ensureConnected();
+    } catch (e: any) {
+        const msg = e?.message ?? String(e ?? "");
+        throw new Error(msg || "Socket connection failed");
+    }
 
     return await new Promise<number>((resolve, reject) => {
         const timeout = window.setTimeout(() => {
@@ -84,7 +84,12 @@ export async function socketSendMessage(sender: number, chatId: number, text: st
 
         const onErr = (err: any) => {
             cleanup();
-            reject(new Error(err?.error ?? "Socket error"));
+            const message =
+                err?.error ??
+                err?.message ??
+                (typeof err === "string" ? err : null) ??
+                "Socket error";
+            reject(new Error(message));
         };
 
         s.on("sendMessageResponse", onOk);

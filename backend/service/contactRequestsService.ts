@@ -1,4 +1,4 @@
-import { contactRequestsReposetory } from "../repository/contactRequestsReposetory";
+import {contactRequestsReposetory} from "../repository/contactRequestsReposetory";
 
 class ContactRequestsService {
 
@@ -11,10 +11,6 @@ class ContactRequestsService {
 
     async getContactRequests(userId: number): Promise<any | null> {
         return contactRequestsReposetory.getContactRequestsByUserId(userId);
-    }
-
-    async getSentContactRequests(userId: number): Promise<any | null> {
-        return contactRequestsReposetory.getSentContactsByUserId(userId);
     }
 
     async deleteContactRequest(useridOwner: number, useridRequester: number): Promise<any | null> {

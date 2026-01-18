@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import { verifyUserToken } from "./jwt";
+import {Request, Response, NextFunction} from "express";
+import {verifyUserToken} from "./jwt";
 
 export type AuthedRequest = Request & { userId: number };
 
@@ -21,14 +21,14 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     try {
         const token = extractBearerToken(req);
         if (!token) {
-            return res.status(401).json({ error: "Missing Authorization Bearer token" });
+            return res.status(401).json({error: "Missing Authorization Bearer token"});
         }
 
-        const { userId } = verifyUserToken(token);
+        const {userId} = verifyUserToken(token);
         (req as AuthedRequest).userId = userId;
 
         next();
     } catch {
-        return res.status(401).json({ error: "Invalid or expired token" });
+        return res.status(401).json({error: "Invalid or expired token"});
     }
 }

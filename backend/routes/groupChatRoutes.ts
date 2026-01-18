@@ -1,6 +1,6 @@
-import { Router } from "express";
-import { groupChatService } from "../service/groupChatService";
-import { requireAuth, type AuthedRequest } from "../modules/authMiddleware";
+import {Router} from "express";
+import {groupChatService} from "../service/groupChatService";
+import {requireAuth, type AuthedRequest} from "../modules/authMiddleware";
 
 const router = Router();
 
@@ -16,24 +16,24 @@ Body (raw JSON):
 }
 */
 router.post("/create", requireAuth, async (req, res) => {
-  try {
-      const currentUserId = (req as AuthedRequest).userId;
-      const { members, groupname } = req.body as {
-          members: number[];
-          groupname: string;
-      };
+    try {
+        const currentUserId = (req as AuthedRequest).userId;
+        const {members, groupname} = req.body as {
+            members: number[];
+            groupname: string;
+        };
 
-      if (!members || !Array.isArray(members) || !groupname) {
-          return res.status(400).json({
-              error: "Missing required fields: members, groupname"
-          });
-      }
+        if (!members || !Array.isArray(members) || !groupname) {
+            return res.status(400).json({
+                error: "Missing required fields: members, groupname"
+            });
+        }
 
-      const chatId = await groupChatService.createGroupChat(members, groupname, currentUserId);
-    res.status(201).json({ chatId });
-  } catch (err) {
-    res.status(400).json({ error: (err as Error).message });
-  }
+        const chatId = await groupChatService.createGroupChat(members, groupname, currentUserId);
+        res.status(201).json({chatId});
+    } catch (err) {
+        res.status(400).json({error: (err as Error).message});
+    }
 });
 
 /*
@@ -41,13 +41,13 @@ Get group chat details by chatId (includes members, message IDs, groupname, and 
 GET http://localhost:3000/api/groupchats/:chatId
 */
 router.get("/:chatId", async (req, res) => {
-  try {
-    const chatId = Number(req.params.chatId);
-    const groupChat = await groupChatService.getGroupChatById(chatId);
-    res.json(groupChat);
-  } catch (err) {
-    res.status(404).json({ error: (err as Error).message });
-  }
+    try {
+        const chatId = Number(req.params.chatId);
+        const groupChat = await groupChatService.getGroupChatById(chatId);
+        res.json(groupChat);
+    } catch (err) {
+        res.status(404).json({error: (err as Error).message});
+    }
 });
 
 /*
@@ -62,24 +62,24 @@ Body (raw JSON):
 }
 */
 router.put("/add", requireAuth, async (req, res) => {
-  try {
-      const currentUserId = (req as AuthedRequest).userId;
-      const { chatId, targetUserId } = req.body as {
-          chatId: number;
-          targetUserId: number;
-      };
+    try {
+        const currentUserId = (req as AuthedRequest).userId;
+        const {chatId, targetUserId} = req.body as {
+            chatId: number;
+            targetUserId: number;
+        };
 
-      if (!chatId || !targetUserId) {
-          return res.status(400).json({
-              error: "Missing required fields: chatId, targetUserId"
-          });
-      }
+        if (!chatId || !targetUserId) {
+            return res.status(400).json({
+                error: "Missing required fields: chatId, targetUserId"
+            });
+        }
 
-      const success = await groupChatService.addUserToGroupChat(chatId, targetUserId, currentUserId);
-    res.status(200).json({ success, message: "User added to group chat" });
-  } catch (err) {
-    res.status(400).json({ error: (err as Error).message });
-  }
+        const success = await groupChatService.addUserToGroupChat(chatId, targetUserId, currentUserId);
+        res.status(200).json({success, message: "User added to group chat"});
+    } catch (err) {
+        res.status(400).json({error: (err as Error).message});
+    }
 });
 
 /*
@@ -94,24 +94,24 @@ Body (raw JSON):
 }
 */
 router.put("/remove", requireAuth, async (req, res) => {
-  try {
-      const currentUserId = (req as AuthedRequest).userId;
-      const { chatId, targetUserId } = req.body as {
-          chatId: number;
-          targetUserId: number;
-      };
+    try {
+        const currentUserId = (req as AuthedRequest).userId;
+        const {chatId, targetUserId} = req.body as {
+            chatId: number;
+            targetUserId: number;
+        };
 
-      if (!chatId || !targetUserId) {
-          return res.status(400).json({
-              error: "Missing required fields: chatId, targetUserId"
-          });
-      }
+        if (!chatId || !targetUserId) {
+            return res.status(400).json({
+                error: "Missing required fields: chatId, targetUserId"
+            });
+        }
 
-      const success = await groupChatService.removeUserFromGroupChat(chatId, targetUserId, currentUserId);
-    res.status(200).json({ success, message: "User removed from group chat" });
-  } catch (err) {
-    res.status(400).json({ error: (err as Error).message });
-  }
+        const success = await groupChatService.removeUserFromGroupChat(chatId, targetUserId, currentUserId);
+        res.status(200).json({success, message: "User removed from group chat"});
+    } catch (err) {
+        res.status(400).json({error: (err as Error).message});
+    }
 });
 
 /*
@@ -125,24 +125,24 @@ Body (raw JSON):
 }
 */
 router.put("/:chatId/rename", requireAuth, async (req, res) => {
-  try {
-      const currentUserId = (req as AuthedRequest).userId;
-      const { newGroupName } = req.body as {
-          newGroupName: string;
-      };
+    try {
+        const currentUserId = (req as AuthedRequest).userId;
+        const {newGroupName} = req.body as {
+            newGroupName: string;
+        };
 
-      if (!newGroupName) {
-          return res.status(400).json({
-              error: "Missing required field: newGroupName"
-          });
-      }
+        if (!newGroupName) {
+            return res.status(400).json({
+                error: "Missing required field: newGroupName"
+            });
+        }
 
-      const chatId = Number(req.params.chatId);
-    const success = await groupChatService.renameGroupChatById(chatId, currentUserId, newGroupName);
-    res.status(200).json({ success, message: "Group chat renamed" });
-  } catch (err) {
-    res.status(400).json({ error: (err as Error).message });
-  }
+        const chatId = Number(req.params.chatId);
+        const success = await groupChatService.renameGroupChatById(chatId, currentUserId, newGroupName);
+        res.status(200).json({success, message: "Group chat renamed"});
+    } catch (err) {
+        res.status(400).json({error: (err as Error).message});
+    }
 });
 
 // Change admin (admin only)
@@ -152,16 +152,16 @@ router.put("/:chatId/admin", requireAuth, async (req, res) => {
     try {
         const chatId = Number(req.params.chatId);
         const currentUserId = (req as AuthedRequest).userId;
-        const { newAdminId } = req.body as { newAdminId: number };
+        const {newAdminId} = req.body as { newAdminId: number };
 
         if (!newAdminId) {
-            return res.status(400).json({ error: "Missing required field: newAdminId" });
+            return res.status(400).json({error: "Missing required field: newAdminId"});
         }
 
         await groupChatService.setGroupChatAdmin(chatId, Number(newAdminId), currentUserId);
-        res.status(200).json({ success: true, message: "Admin updated" });
+        res.status(200).json({success: true, message: "Admin updated"});
     } catch (err) {
-        res.status(400).json({ error: (err as Error).message });
+        res.status(400).json({error: (err as Error).message});
     }
 });
 

@@ -1,4 +1,4 @@
-import { authFetch } from "../state/AuthFetch";
+import {authFetch} from "../state/AuthFetch";
 
 export type ContactUser = {
     userId: number;
@@ -17,7 +17,11 @@ export async function apiGetContacts(userId: number): Promise<{ contacts: { user
     return res.json();
 }
 
-export async function apiGetUserBasic(userId: number): Promise<{ userid: number; username: string; nicknames: string }> {
+export async function apiGetUserBasic(userId: number): Promise<{
+    userid: number;
+    username: string;
+    nicknames: string
+}> {
     const res = await authFetch(`/api/user/findUserId/${userId}`);
     if (!res.ok) throw new Error("Failed to load user");
     const body = await res.json();
@@ -34,8 +38,8 @@ export async function apiGetMyContactRequests(): Promise<ContactRequest[]> {
 export async function apiSendContactRequest(username: string): Promise<void> {
     const res = await authFetch(`/api/contactRequests/send`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({username}),
     });
     if (!res.ok) throw new Error("Failed to send contact request");
 }
@@ -43,8 +47,8 @@ export async function apiSendContactRequest(username: string): Promise<void> {
 export async function apiAcceptContactRequest(requesterId: number): Promise<void> {
     const res = await authFetch(`/api/contactRequests/accept`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requesterId }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({requesterId}),
     });
     if (!res.ok) throw new Error("Failed to accept request");
 }
@@ -52,8 +56,8 @@ export async function apiAcceptContactRequest(requesterId: number): Promise<void
 export async function apiDenyContactRequest(requesterId: number): Promise<void> {
     const res = await authFetch(`/api/contactRequests/deny`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requesterId }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({requesterId}),
     });
     if (!res.ok) throw new Error("Failed to deny request");
 }

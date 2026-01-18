@@ -1,7 +1,7 @@
 import "../css/global.css";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { authFetch } from "../state/AuthFetch";
+import {useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {authFetch} from "../state/AuthFetch";
 
 type Mood = "green" | "yellow" | "red" | "grey";
 
@@ -24,8 +24,8 @@ export default function MoodPage() {
             // Correct endpoint: /api/users/mood (matches backend userRoutes)
             const res = await authFetch(`/api/user/mood`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mood: selectedMood }),
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({mood: selectedMood}),
             });
 
             const body = await res.json().catch(() => null);
@@ -59,7 +59,10 @@ export default function MoodPage() {
             <div className="mood-card">
                 <button
                     className={`mood-button mood-button--red${selectedMood === "red" ? " is-selected" : ""}`}
-                    onClick={() => { setSelectedMood("red"); setError(null); }}
+                    onClick={() => {
+                        setSelectedMood("red");
+                        setError(null);
+                    }}
                     disabled={loading}
                 >
                     Red
@@ -67,7 +70,10 @@ export default function MoodPage() {
 
                 <button
                     className={`mood-button mood-button--yellow${selectedMood === "yellow" ? " is-selected" : ""}`}
-                    onClick={() => { setSelectedMood("yellow"); setError(null); }}
+                    onClick={() => {
+                        setSelectedMood("yellow");
+                        setError(null);
+                    }}
                     disabled={loading}
                 >
                     Yellow
@@ -75,7 +81,10 @@ export default function MoodPage() {
 
                 <button
                     className={`mood-button mood-button--green${selectedMood === "green" ? " is-selected" : ""}`}
-                    onClick={() => { setSelectedMood("green"); setError(null); }}
+                    onClick={() => {
+                        setSelectedMood("green");
+                        setError(null);
+                    }}
                     disabled={loading}
                 >
                     Green
@@ -83,7 +92,10 @@ export default function MoodPage() {
 
                 <button
                     className={`mood-button mood-button--grey${selectedMood === "grey" ? " is-selected" : ""}`}
-                    onClick={() => { setSelectedMood("grey"); setError(null); }}
+                    onClick={() => {
+                        setSelectedMood("grey");
+                        setError(null);
+                    }}
                     disabled={loading}
                 >
                     Grey

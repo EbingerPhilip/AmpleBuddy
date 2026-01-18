@@ -1,4 +1,4 @@
-import { authFetch } from "../state/AuthFetch";
+import {authFetch} from "../state/AuthFetch";
 
 export type PronounsOption = "she/her" | "he/him" | "they/them" | "prefer not to say";
 
@@ -85,7 +85,7 @@ export async function apiUpdateMyProfile(updates: {
 }): Promise<void> {
     const res = await authFetch("/api/user/edit", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(updates),
     });
 
@@ -99,7 +99,7 @@ export async function apiUploadProfilePic(file: File): Promise<string> {
     const fd = new FormData();
     fd.append("profile-pics", file);
 
-    const res = await authFetch("/api/user/profile-pics", { method: "POST", body: fd });
+    const res = await authFetch("/api/user/profile-pics", {method: "POST", body: fd});
     if (!res.ok) throw new Error("Failed to upload profile picture");
 
     const body = await res.json();
@@ -107,7 +107,7 @@ export async function apiUploadProfilePic(file: File): Promise<string> {
 }
 
 export async function apiDeleteProfilePic(): Promise<void> {
-    const res = await authFetch("/api/user/profile-pics", { method: "DELETE" });
+    const res = await authFetch("/api/user/profile-pics", {method: "DELETE"});
     if (!res.ok) throw new Error("Failed to delete profile picture");
 }
 
@@ -137,7 +137,7 @@ export async function apiUpsertMyPreferences(userId: number, prefs: BuddyPrefere
     // Backend does not require auth, but authFetch is fine here.
     const putRes = await authFetch(`/api/preferences/${userId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(prefs),
     });
 
@@ -146,8 +146,8 @@ export async function apiUpsertMyPreferences(userId: number, prefs: BuddyPrefere
     // If update fails (e.g. row missing), try create
     const postRes = await authFetch(`/api/preferences/new`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, ...prefs }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({userId, ...prefs}),
     });
 
     if (!postRes.ok) {
@@ -159,8 +159,8 @@ export async function apiUpsertMyPreferences(userId: number, prefs: BuddyPrefere
 export async function apiDeleteMyAccount(password: string): Promise<void> {
     const res = await authFetch("/api/user/delete-account", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({password}),
     });
 
     if (!res.ok) {
@@ -171,7 +171,7 @@ export async function apiDeleteMyAccount(password: string): Promise<void> {
 
 // Downloads a TXT export of the current user's chats they are currently in.
 export async function apiRetrieveChatLogs(): Promise<void> {
-    const res = await authFetch("/api/user/chat-logs", { method: "GET" });
+    const res = await authFetch("/api/user/chat-logs", {method: "GET"});
 
     if (!res.ok) {
         // Try JSON error first, then fall back to text
