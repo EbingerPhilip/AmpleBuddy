@@ -2,7 +2,7 @@ const pool = require("../config/db");
 
 /**
  * Runs one-time maintenance tasks on server startup:
- * - Reset dailyMood to 'gray' for users who haven't logged mood today (calendar day)
+ * - Reset dailyMood to 'grey' for users who haven't logged mood today (calendar day)
  * - Clear buddypool (since server isn't always running and triggers might not fire)
  */
 async function runStartupMaintenance(): Promise<void> {
@@ -14,9 +14,9 @@ async function runStartupMaintenance(): Promise<void> {
         LEFT JOIN moodhistory mh
             ON mh.userid = u.userid
            AND mh.date = CURDATE()
-        SET u.dailyMood = 'gray'
+        SET u.dailyMood = 'grey'
         WHERE mh.userid IS NULL
-          AND u.dailyMood <> 'gray'
+          AND u.dailyMood <> 'grey'
         `
     );
 

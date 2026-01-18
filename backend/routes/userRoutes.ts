@@ -10,6 +10,8 @@ import multer from "multer"
 import path from "path"
 import sharp from "sharp";
 import { hashPassword, verifyPassword } from "../config/encryption";
+import { chatRepository } from "../repository/chatRepository";
+import { messageRepository } from "../repository/messageRepository";
 
 const upload = multer({ storage: multer.memoryStorage() });
 const router = Router();
@@ -23,7 +25,7 @@ Body (raw JSON):
   "username": "alice@example.com",
   "password": "secret123",
   "nicknames": "alice",
-  "dailyMood": "gray",        // optional: green | orange | red | gray
+  "dailyMood": "grey",        // optional: green | orange | red | grey
   "dateOfBirth": "1990-05-10",// optional (YYYY-MM-DD)
   "theme": "light",           // optional: light | dark | colourblind
   "pronouns": "she/her",      // optional: he/him | she/her | they/them | hidden
@@ -177,6 +179,87 @@ router.get("/me", requireAuth, async (req, res) => {
     }
 });
 
+// Download a TXT export of all messages in chats the current user is currently a participant in,
+// grouped by chat (including participants).
+// GET /api/user/chat-logs
+router.get("/chat-logs", requireAuth, async (req, res) => {
+    try {
+        const userId = (req as AuthedRequest).userId;
+        const me = await userService.getUserById(userId);
+
+        const chatIds = await chatRepository.getUserChatIds(userId);
+
+        const now = new Date();
+        const stamp = now.toISOString().replace(/[:.]/g, "-").slice(0, 19);
+        const filename = `amplebuddy_chat_logs_${stamp}.txt`;
+
+        const lines: string[] = [];
+        lines.push("AmpleBuddy chat logs");
+        lines.push(`Generated: ${now.toISOString()}`);
+        lines.push(`Requested by: ${me?.nicknames ?? "(unknown)"} (userid=${userId})`);
+        lines.push("");
+
+        for (const chatId of chatIds) {
+            const chatData = await chatRepository.getChatById(chatId);
+            const members = await chatRepository.getChatMembers(chatId);
+
+            const memberInfos = await Promise.all(
+                members.map(async (id) => {
+                    const u = await userService.getUserById(id);
+                    const nick = u?.nicknames ?? (id === 1 ? "[deleted]" : `[user ${id}]`);
+                    return { id, nick };
+                })
+            );
+
+            const isGroup = chatData?.group === 1 || chatData?.group === true;
+            const title = isGroup
+                ? (chatData?.groupname ? `Group: ${chatData.groupname}` : `Group chat ${chatId}`)
+                : (() => {
+                    const other = memberInfos.find((m) => m.id !== userId);
+                    return other ? `Direct chat with ${other.nick}` : `Direct chat ${chatId}`;
+                })();
+
+            lines.push("========================================");
+            lines.push(`Chat ${chatId} — ${title}`);
+            lines.push(`Participants: ${memberInfos.map((m) => `${m.nick} (userid=${m.id})`).join(", ")}`);
+            lines.push("----------------------------------------");
+
+            const allMessages = await messageRepository.getMessagesByChatId(chatId);
+
+            if (!allMessages || allMessages.length === 0) {
+                lines.push("(No messages in this chat.)");
+                lines.push("");
+                continue;
+            }
+
+            for (const m of allMessages) {
+                const ts = m.timeSent ? new Date(m.timeSent).toISOString() : "(unknown time)";
+                const senderId = Number(m.sender);
+                const senderNick =
+                    (m.nicknames ?? "").toString().trim() ||
+                    memberInfos.find((x) => x.id === senderId)?.nick ||
+                    (senderId === 1 ? "[deleted]" : `[user ${senderId}]`);
+
+                const text = (m.text ?? "").toString();
+                const link = m.link ? ` [file: ${m.link}]` : "";
+                lines.push(`[${ts}] ${senderNick} (userid=${senderId}): ${text}${link}`.trim());
+            }
+
+            lines.push("");
+        }
+
+        const content = lines.join("\n");
+
+        res.setHeader("Content-Type", "text/plain; charset=utf-8");
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        res.status(200).send(content);
+    } catch (err: any) {
+        console.error("[CHAT LOGS] failed:", err);
+        res.status(400).json({ error: err?.sqlMessage ?? err?.message ?? "Failed to retrieve chat logs" });
+    }
+});
+
+
 router.get("/getPic", requireAuth, async (req, res) => {
     const userId = (req as AuthedRequest).userId;
     const abs = path.join(__dirname, "../../backend/public/profile-pics", `${userId}.png`);
@@ -237,7 +320,7 @@ router.post("/delete-account", requireAuth, async (req, res) => {
 Log current mood (JWT user) and attempt buddy match
 POST /api/users/mood
 Headers: Authorization: Bearer <token>
-Body: { "mood": "green" } // green | red | yellow | gray
+Body: { "mood": "green" } // green | red | yellow | grey
 */
 router.post("/mood", requireAuth, async (req, res) => {
     try {

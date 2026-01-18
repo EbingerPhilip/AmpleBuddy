@@ -13,7 +13,7 @@ type CreateUserInput = {
   username: string;
   password: string;
   nicknames: string;
-  dailyMood?: string;          // expects 'green' | 'orange' | 'red' | 'gray'
+  dailyMood?: string;          // expects 'green' | 'orange' | 'red' | 'grey'
   dateOfBirth?: Date | null;
   theme?: string;              // 'light' | 'dark' | 'colourblind'
   pronouns?: string;           // 'he/him' | 'she/her' | 'they/them' | 'hidden'
@@ -37,12 +37,6 @@ class UserService {
       return userRepository.getUserByUsername(username);
   }
 
-    // optional helper to fetch all users if needed later
-  // async getAllUsers(): Promise<any[]> {
-  //   return userRepository.getAllUsers();
-  // }
-
-  
   async updateUser(userId: number, updates: UpdateUserInput): Promise<void> {
     const existing = await userRepository.getUserById(userId);
     if (!existing) throw new Error("User not found");
@@ -199,37 +193,68 @@ class UserService {
 
   }
   //
-  async logDailyMood(userId: number, mood: EDailyMood) {
-    console.log("[logDailyMood] Start - userId:", userId, "mood:", mood, "EDailyMood:", EDailyMood);
-    const user = await userRepository.getUserById(userId);
-    if (!user) throw new Error("User not found");
+    async logDailyMood(userId: number, mood: EDailyMood) {
+        console.log("[logDailyMood] Start - userId:", userId, "mood:", mood);
 
-    // 1) Update mood in users table and log in moodhistory
-    await userRepository.updateUser(userId, { dailyMood: mood });
-    await moodHistoryRepository.upsertTodayMood(userId, mood);
-    console.log("[logDailyMood] Mood logged");
+        const user = await userRepository.getUserById(userId);
+        if (!user) throw new Error("User not found");
 
-    
-    // 2) Only proceed with matching for instantBuddy = true
-    if (!user.instantBuddy) return { matched: false };
-    console.log("[logDailyMood] User has instantBuddy=true");
-    await buddyPoolRepository.addUser(userId, mood);
-    console.log("[logDailyMood] User added to buddypool");
+        // 1) Always update mood in users table and moodhistory for today (allows changing mood)
+        await userRepository.updateUser(userId, { dailyMood: mood });
+        await moodHistoryRepository.upsertTodayMood(userId, mood);
+        console.log("[logDailyMood] Mood logged/updated for today");
 
-    // 3) Red mood: advanced matching considering preferences if possible
-    if (mood === EDailyMood.red) {
-      console.log("[logDailyMood] Red mood detected, starting advanced matching...");
-      return await this.advancedBuddyMatchingRed(userId, mood);
+        // 2) Buddy pool behaviour rules
+        const inPool = await buddyPoolRepository.getUser(userId);
+
+        // If instantBuddy is OFF -> remove from pool and stop
+        if (!user.instantBuddy) {
+            if (inPool) {
+                await buddyPoolRepository.removeUser(userId);
+                console.log("[logDailyMood] instantBuddy off -> removed from buddypool");
+            }
+            return { matched: false };
+        }
+
+        // instantBuddy ON:
+        // If mood is yellow or grey -> remove from pool and stop (no matching)
+        if (mood === EDailyMood.yellow || mood === EDailyMood.grey) {
+            if (inPool) {
+                await buddyPoolRepository.removeUser(userId);
+                console.log("[logDailyMood] Mood yellow/grey -> removed from buddypool");
+            } else {
+                console.log("[logDailyMood] Mood yellow/grey -> not in pool, no action");
+            }
+            return { matched: false };
+        }
+
+        // Mood is red or green (instantBuddy ON)
+        if (!inPool) {
+            // Add if not in pool
+            await buddyPoolRepository.addUser(userId, mood);
+            console.log("[logDailyMood] Added to buddypool (was not in pool)");
+        } else if (inPool.mood !== mood) {
+            // Remove and re-add if mood changed
+            await buddyPoolRepository.removeUser(userId);
+            await buddyPoolRepository.addUser(userId, mood);
+            console.log("[logDailyMood] Mood changed -> removed and re-added to buddypool");
+        } else {
+            // Leave unchanged if mood did not change
+            console.log("[logDailyMood] Mood unchanged and already in pool -> no pool change");
+        }
+
+        // 3) Matching only for red/green
+        if (mood === EDailyMood.red) {
+            return await this.advancedBuddyMatchingRed(userId, mood);
+        }
+
+        if (mood === EDailyMood.green) {
+            return await this.advancedBuddyMatchingGreen(userId, mood);
+        }
+
+        return { matched: false };
     }
 
-    // 4) Green mood: emergency matching with waiting red users disregarding preferences (if needed)
-    if (mood === EDailyMood.green) {
-      console.log("[logDailyMood] Green mood detected, starting emergency matching...");
-      return await this.advancedBuddyMatchingGreen(userId, mood);
-    }
-
-    return { matched: false }; // for yellow/gray moods no matching is performed
-  }
 
 
 }

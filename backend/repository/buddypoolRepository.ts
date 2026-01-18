@@ -85,7 +85,15 @@ class BuddyPoolRepository {
     await pool.execute(`UPDATE buddypool SET chatCount = GREATEST(0, chatCount - 1) WHERE userid = ?`, [userId]);
   }
 
-  // Updated addUser() to also store pronouns, greenstreak, und dateOfBirth in buddypool table
+  async getUser(userId: number): Promise<{ userid: number; mood: EDailyMood; chatCount: number } | null> {
+      const [rows]: any = await pool.execute(
+          `SELECT userid, mood, chatCount FROM buddypool WHERE userid = ? LIMIT 1`,
+          [userId]
+      );
+      return rows[0] || null;
+  }
+
+    // Updated addUser() to also store pronouns, greenstreak, und dateOfBirth in buddypool table
   // Null-values are accepted and handled in service layer during filtering logic
   async addUser(userId: number, mood: EDailyMood): Promise<void> {
     // pronouns, greenstreak and dateOfBirth are loaded from users table, based on userId

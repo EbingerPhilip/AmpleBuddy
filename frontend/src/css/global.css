@@ -36,7 +36,7 @@
     --mood-green: #1a7f37;
     --mood-yellow: #b58100;
     --mood-red: #c1121f;
-    --mood-gray: #9aa0a6;
+    --mood-grey: #9aa0a6;
 
     /* Mood button fills (pastel) */
     --mood-green-bg: #9ad2a5;
@@ -72,7 +72,7 @@ html[data-theme="dark"] {
     --mood-green: #2fbf71;
     --mood-yellow: #f0c93d;
     --mood-red: #ff6b6b;
-    --mood-gray: #9aa0a6;
+    --mood-grey: #9aa0a6;
 
     --mood-green-bg: #1f6a45;
     --mood-yellow-bg: #6a5a1f;
@@ -114,7 +114,7 @@ html[data-theme="colourblind"] {
     --mood-green: #007a5e;     /* teal-green */
     --mood-yellow: #c9b800;    /* dark yellow */
     --mood-red: #b34700;       /* orange-red */
-    --mood-gray: #6b6b6b;
+    --mood-grey: #6b6b6b;
 
     /* Mood button fills (clearly distinct even in greyscale) */
     --mood-green-bg: #6fbfa9;
@@ -162,7 +162,8 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
     width: 100%;
     padding: 0.5rem;
     margin-top: 0.25rem;
@@ -173,11 +174,14 @@ select {
     border: 1px solid var(--border);
 }
 
+
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
     outline: 3px solid var(--focus);
     outline-offset: 1px;
 }
+
 
 /* ===== Buttons ===== */
 button {
@@ -565,6 +569,30 @@ a:focus {
     margin-bottom: 0.25rem;
 }
 
+.radio-options {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.radio-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.radio-option input {
+    width: auto;
+    margin-top: 0;
+}
+
+.helper-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
 .help-icon {
     display: inline-grid;
     place-items: center;
@@ -642,7 +670,7 @@ a:focus {
 .mood-dot--green { fill: var(--mood-green); }
 .mood-dot--yellow { fill: var(--mood-yellow); }
 .mood-dot--red { fill: var(--mood-red); }
-.mood-dot--gray { fill: var(--mood-gray); }
+.mood-dot--grey { fill: var(--mood-grey); }
 
 .mood-line {
     stroke: var(--line);
@@ -716,7 +744,7 @@ a:focus {
 .mood-point:hover .mood-dot--green,
 .mood-point:hover .mood-dot--yellow,
 .mood-point:hover .mood-dot--red,
-.mood-point:hover .mood-dot--gray {
+.mood-point:hover .mood-dot--grey {
     transform-origin: center;
     transform-box: fill-box;
     transform: scale(1.35);

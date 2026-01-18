@@ -19,13 +19,14 @@ class MoodHistoryRepository {
         return rows as MoodHistoryRow[];
     }
 
-    async upsertTodayMood(userid: number, mood: EDailyMood): Promise<void> {
+    async upsertTodayMood(userId: number, mood: string): Promise<void> {
         const sql = `
-      INSERT INTO moodhistory (userid, mood, date)
-      VALUES (?, ?, CURDATE())
-      ON DUPLICATE KEY UPDATE mood = VALUES(mood)
-    `;
-        await pool.execute(sql, [userid, mood]);
+            INSERT INTO moodhistory (userid, date, mood)
+            VALUES (?, CURDATE(), ?)
+                ON DUPLICATE KEY UPDATE
+                                     mood = VALUES(mood)
+        `;
+        await pool.execute(sql, [userId, mood]);
     }
 }
 

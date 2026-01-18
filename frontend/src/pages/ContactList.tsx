@@ -263,7 +263,7 @@ export default function ContactListPage() {
                                     void onSendRequest();
                                 }
                             }}
-                            placeholder="Search username…"
+                            placeholder="Search by email…"
                         />
 
                         <button

@@ -11,6 +11,7 @@ import {
     apiUpdateMyProfile,
     apiUploadProfilePic,
     apiUpsertMyPreferences,
+    apiRetrieveChatLogs,
     type MyProfile,
     type PronounsOption,
     apiGetMoodHistory,
@@ -36,6 +37,33 @@ function calcAge(dateOfBirth: string | null): number | null {
     if (today < thisYearsBirthday) age -= 1;
 
     return Number.isFinite(age) && age >= 0 ? age : null;
+}
+
+function isoDate(d: Date) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+}
+
+function maxDobIso() {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 18);
+    return isoDate(d);
+}
+
+function validateDob18(dobIso: string): string | null {
+    if (!dobIso.trim()) return "Please select a date of birth.";
+
+    const dob = new Date(`${dobIso}T00:00:00`);
+    if (Number.isNaN(dob.getTime())) return "Please enter a valid date of birth.";
+
+    const todayIso = isoDate(new Date());
+
+    if (dobIso > todayIso) return "Date of birth cannot be in the future.";
+    if (dobIso > maxDobIso()) return "You must be at least 18 years old.";
+
+    return null;
 }
 
 function HelpTooltip({ text }: { text: string }) {
@@ -114,6 +142,8 @@ export default function ViewProfilePage() {
     const [prefMinGreen, setPrefMinGreen] = useState<string>("");
     const [prefSaving, setPrefSaving] = useState(false);
 
+    const [logsBusy, setLogsBusy] = useState(false);
+
     async function load() {
         try {
             setLoading(true);
@@ -172,9 +202,16 @@ export default function ViewProfilePage() {
                 instantBuddy,
             };
 
-            // allow setting DOB only if not present yet
             const hasDob = !!toIsoDateOnly(profile.dateOfBirth);
-            if (!hasDob && dobToSet) updates.dateOfBirth = dobToSet;
+            if (!hasDob && dobToSet) {
+                const dobErr = validateDob18(dobToSet);
+                if (dobErr) {
+                    setError(dobErr);
+                    return;
+                }
+                updates.dateOfBirth = dobToSet;
+            }
+
 
             await apiUpdateMyProfile(updates);
             document.documentElement.dataset.theme = theme;
@@ -244,7 +281,7 @@ export default function ViewProfilePage() {
     }
 
     function moodToValue(mood: string): number {
-        // gray and yellow = 0, green = 1, red = -1
+        // grey and yellow = 0, green = 1, red = -1
         if (mood === "green") return 1;
         if (mood === "red") return -1;
         return 0;
@@ -257,8 +294,8 @@ export default function ViewProfilePage() {
         return `${y}-${m}-${day}`;
     }
 
-    function buildDailySeries(rows: MoodHistoryRow[], daysBack: number): { date: string; mood: "green" | "yellow" | "red" | "gray"; value: number }[] {
-        const map = new Map<string, "green" | "yellow" | "red" | "gray">();
+    function buildDailySeries(rows: MoodHistoryRow[], daysBack: number): { date: string; mood: "green" | "yellow" | "red" | "grey"; value: number }[] {
+        const map = new Map<string, "green" | "yellow" | "red" | "grey">();
         for (const r of rows) {
             const key = r.date.slice(0, 10);
             map.set(key, r.mood);
@@ -269,12 +306,12 @@ export default function ViewProfilePage() {
         const start = new Date(end);
         start.setDate(start.getDate() - (daysBack - 1));
 
-        const out: { date: string; mood: "green" | "yellow" | "red" | "gray"; value: number }[] = [];
+        const out: { date: string; mood: "green" | "yellow" | "red" | "grey"; value: number }[] = [];
         const cur = new Date(start);
 
         while (cur <= end) {
             const d = isoDay(cur);
-            const mood = map.get(d) ?? "gray"; // not logged => gray
+            const mood = map.get(d) ?? "grey"; // not logged => grey
             out.push({ date: d, mood, value: moodToValue(mood) });
             cur.setDate(cur.getDate() + 1);
         }
@@ -282,16 +319,16 @@ export default function ViewProfilePage() {
         return out;
     }
 
-    function trimRecentGrayStages<T extends { mood: string }>(series: T[]): T[] {
+    function trimRecentGreyStages<T extends { mood: string }>(series: T[]): T[] {
         const thresholds = [64, 48, 32, 16, 8];
 
         let out = series.slice();
 
         while (out.length > 0) {
-            // Count trailing gray days
+            // Count trailing grey days
             let streak = 0;
             for (let i = out.length - 1; i >= 0; i--) {
-                if (out[i].mood === "gray") streak++;
+                if (out[i].mood === "grey") streak++;
                 else break;
             }
 
@@ -331,6 +368,18 @@ export default function ViewProfilePage() {
             setDeleteBusy(false);
             setDeleteOpen(false);
             setDeletePassword("");
+        }
+    }
+
+    async function onRetrieveChatLogs() {
+        try {
+            setError(null);
+            setLogsBusy(true);
+            await apiRetrieveChatLogs();
+        } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : "Failed to retrieve chat logs");
+        } finally {
+            setLogsBusy(false);
         }
     }
 
@@ -418,7 +467,7 @@ export default function ViewProfilePage() {
                             {/* Adds a link to the mood setting page if mood is set to grey */}
                             <li>
                                 <strong>Current mood:</strong>{" "}
-                                {profile.dailyMood === "gray" || profile.dailyMood === "grey" ? (
+                                {profile.dailyMood === "grey" || profile.dailyMood === "grey" ? (
                                     <Link
                                         to="/mood"
                                         title="Set your daily mood"
@@ -493,7 +542,7 @@ export default function ViewProfilePage() {
 
                         {(() => {
                             const raw = buildDailySeries(moodHistory, 90); // last 90 days
-                            const series = trimRecentGrayStages(raw);
+                            const series = trimRecentGreyStages(raw);
 
                             if (series.length === 0) {
                                 return <p>No mood history yet.</p>;
@@ -529,7 +578,7 @@ export default function ViewProfilePage() {
                                 if (m === "green") return "mood-dot--green";
                                 if (m === "yellow") return "mood-dot--yellow";
                                 if (m === "red") return "mood-dot--red";
-                                return "mood-dot--gray";
+                                return "mood-dot--grey";
                             };
 
                             return (
@@ -551,7 +600,7 @@ export default function ViewProfilePage() {
                                         })}
                                     </svg>
                                     <p style={{ margin: "0.5rem 0 0 0", fontSize: "0.85rem" }}>
-                                        Green = 1, Yellow/Gray = 0, Red = -1 (missing days assumed gray).
+                                        Green = 1, Yellow/grey = 0, Red = -1 (missing days assumed grey).
                                     </p>
                                 </div>
                             );
@@ -634,6 +683,7 @@ export default function ViewProfilePage() {
                                 <input
                                     type="date"
                                     value={dobToSet}
+                                    max={maxDobIso()}
                                     onChange={(e) => setDobToSet(e.target.value)}
                                 />
                             </label>
@@ -641,8 +691,8 @@ export default function ViewProfilePage() {
                     </div>
                     <div className="toggle-row">
                         <div className="switch-row">
-                            <span className="switch-label">InstantBuddy</span>
-                            <label className="switch" aria-label="InstantBuddy">
+                            <span className="switch-label">Buddy Matching</span>
+                            <label className="switch" aria-label="Buddy Matching">
                                 <input
                                     type="checkbox"
                                     checked={instantBuddy}
@@ -662,6 +712,18 @@ export default function ViewProfilePage() {
                     </button>
                 </div>
             </section>
+
+            {/* Chat logs export */}
+            <section className="profile-section" style={{ marginTop: "1.5rem" }}>
+                <h2 className="section-title">Chat logs</h2>
+                <p style={{ marginTop: 0 }}>
+                    Download a TXT file of all messages across chats you are currently in.
+                </p>
+                <button type="button" onClick={() => void onRetrieveChatLogs()} disabled={logsBusy}>
+                    {logsBusy ? "Preparing..." : "Retrieve Chat Logs"}
+                </button>
+            </section>
+
             {/* Danger zone */}
             <section className="profile-section" style={{ marginTop: "1.5rem" }}>
                 <h2 className="section-title">Danger zone</h2>

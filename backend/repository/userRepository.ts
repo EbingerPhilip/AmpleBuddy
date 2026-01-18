@@ -20,7 +20,7 @@ class UserRepository {
       user.username,
       user.password,
       user.nicknames,
-      user.dailyMood ?? 'gray',
+      user.dailyMood ?? 'grey',
       user.dateOfBirth ?? null,
       user.dobHidden ? 1 : 0,
       user.theme ?? 'light',
