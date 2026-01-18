@@ -147,7 +147,7 @@ router.post("/sendFile", requireAuth, upload.single("file"), async (req, res) =>
         const chatId = req.body?.chatId;
         const message = req.body?.text;
         const file = req.file;
-        const link = 'https://localhost:3000/documents/' + file?.filename;
+        const link = `/documents/${file?.filename}`;
 
 
         if (!file) return res.status(400).send("No file uploaded");

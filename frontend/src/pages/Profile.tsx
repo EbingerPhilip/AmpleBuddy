@@ -486,7 +486,7 @@ export default function ViewProfilePage() {
                             </li>
 
                             <li><strong>Theme:</strong> {profile.theme}</li>
-                            <li><strong>Buddy Matching:</strong> {profile.instantBuddy === 1 ? "On" : "Off"}</li>
+                            <li><strong>Buddy Matching?:</strong> {profile.instantBuddy === 1 ? "On" : "Off"}</li>
                         </ul>
                     </section>
 
@@ -553,15 +553,12 @@ export default function ViewProfilePage() {
                             if (series.length === 0) {
                                 return <p>No mood history yet.</p>;
                             }
-
-
                             const w = 300;  // viewBox width
                             const h = 180;  // viewBox height
                             const padX = 12;
                             const padY = 16;
 
                             const xStep = (w - padX * 2) / Math.max(1, series.length - 1);
-
                             const yForValue = (v: number) => {
                                 // map -1..1 into chart area (top=1, middle=0, bottom=-1)
                                 const top = padY;
@@ -699,8 +696,8 @@ export default function ViewProfilePage() {
                     </div>
                     <div className="toggle-row">
                         <div className="switch-row">
-                            <span className="switch-label">Buddy Matching</span>
-                            <label className="switch" aria-label="Buddy Matching">
+                            <span className="switch-label">Buddy Matching?</span>
+                            <label className="switch" aria-label="Buddy Matching?">
                                 <input
                                     type="checkbox"
                                     checked={instantBuddy}

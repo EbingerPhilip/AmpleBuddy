@@ -14,6 +14,7 @@ export default defineConfig({
     ],
     server: {
         port: 4000,
+        host: true, // allows LAN access
         https: {
             key: fs.readFileSync(path.resolve(__dirname, "certs/localhost-key.pem")),
             cert: fs.readFileSync(path.resolve(__dirname, "certs/localhost.pem")),
@@ -40,6 +41,5 @@ export default defineConfig({
                 changeOrigin: true,
             },
         }
-
     }
 })
