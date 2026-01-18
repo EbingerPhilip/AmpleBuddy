@@ -13,13 +13,9 @@ import contactRoutes from "./routes/contactRoutes";
 import contactRequestsRoutes from "./routes/contactRequestsRoutes";
 import groupChatRoutes  from "./routes/groupChatRoutes";
 import previewRoutes from "./routes/previewRoutes";
-import {AuthedRequest} from "./modules/authMiddleware";
-import {chatRepository} from "./repository/chatRepository";
-import {messageService} from "./service/messageService";
-import {chatService} from "./service/chatService";
-import {messageRepository} from "./repository/messageRepository";
 import {Server} from 'socket.io';
 import {configureSockets} from "./routes/sockets"
+import { startupService } from "./service/startupService";
 
 
 dotenv.config();
@@ -87,6 +83,10 @@ app.get(/^(?!\/api\/).*/, (_req, res) => {
 const server = https.createServer(httpsOptions, app);
 server.listen(PORT, () => {
     console.log(`[BOOT] Server running at https://localhost:${PORT}`);
+});
+
+startupService.runStartupMaintenance().catch((err) => {
+    console.error("[BOOT] Startup maintenance failed:", err);
 });
 
 const io = new Server(server, {

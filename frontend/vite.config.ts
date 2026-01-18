@@ -1,5 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import fs from "fs";
+import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -11,9 +13,17 @@ export default defineConfig({
     }),
   ],
   server: {
-    port: 4000, // <-- set your desired port here
-    host: true, // allows LAN access  
-    proxy: {
+    port: 4000,
+      https: {
+          key: fs.readFileSync(path.resolve(__dirname, "certs/localhost-key.pem")),
+          cert: fs.readFileSync(path.resolve(__dirname, "certs/localhost.pem")),
+      },
+
+      // Helps avoid HMR weirdness with HTTPS in some setups
+      hmr: {
+          protocol: "wss",
+      },
+      proxy: {
           "/api": {
               target: "https://localhost:3000",
               secure: false,

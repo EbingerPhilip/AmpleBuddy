@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../state/AuthContext";
 import { FiUser, FiHome, FiLogOut } from "react-icons/fi";
 import { FaTrafficLight } from "react-icons/fa";
-import { LuMessageCircle, LuContact } from "react-icons/lu";
+import { LuMessageCircleHeart, LuMessageCircle, LuContact } from "react-icons/lu";
 
 export default function Sidebar() {
     const { logout } = useAuth();
@@ -17,47 +17,22 @@ export default function Sidebar() {
         <nav className="sidebar" aria-label="Sidebar navigation">
             <div className="sidebar-inner">
                 <div className="sidebar-top">
-                    <NavLink
-                        to="/profile"
-                        className={({ isActive }) =>
-                            isActive ? "sidebar-icon active" : "sidebar-icon"
-                        }
-                        aria-label="View profile"
-                        title="Profile"
-                    >
-                        <FiUser aria-hidden="true" />
-                    </NavLink>
 
                     <NavLink
                         to="/home"
-                        className={({ isActive }) =>
-                            isActive ? "sidebar-icon active" : "sidebar-icon"
-                        }
+                        className={({ isActive }) => (isActive ? "sidebar-icon active" : "sidebar-icon")}
                         aria-label="Home"
                         title="Home"
                     >
                         <FiHome aria-hidden="true" />
                     </NavLink>
-
                     <NavLink
-                        to="/mood"
-                        className={({ isActive }) =>
-                            isActive ? "sidebar-icon active" : "sidebar-icon"
-                        }
-                        aria-label="Mood"
-                        title="Mood"
+                        to="/profile"
+                        className={({ isActive }) => (isActive ? "sidebar-icon active" : "sidebar-icon")}
+                        aria-label="View profile"
+                        title="Profile"
                     >
-                        <FaTrafficLight aria-hidden="true" />
-                    </NavLink>
-                    <NavLink
-                        to="/chats"
-                        className={({ isActive }) =>
-                            isActive ? "sidebar-icon active" : "sidebar-icon"
-                        }
-                        aria-label="Chats"
-                        title="Chats"
-                    >
-                        <LuMessageCircle aria-hidden="true" />
+                        <FiUser aria-hidden="true" />
                     </NavLink>
                     <NavLink
                         to="/contacts"
@@ -67,7 +42,30 @@ export default function Sidebar() {
                     >
                         <LuContact />
                     </NavLink>
-
+                    <NavLink
+                        to="/mood"
+                        className={({ isActive }) => (isActive ? "sidebar-icon active" : "sidebar-icon")}
+                        aria-label="Mood"
+                        title="Mood"
+                    >
+                        <FaTrafficLight aria-hidden="true" />
+                    </NavLink>
+                    <NavLink
+                        to="/chats"
+                        className={({ isActive }) => (isActive ? "sidebar-icon active" : "sidebar-icon")}
+                        aria-label="Chats"
+                        title="Chats"
+                    >
+                        <LuMessageCircle aria-hidden="true" />
+                    </NavLink>
+                    <NavLink
+                        to="/scheduled-message"
+                        className={({ isActive }) => (isActive ? "sidebar-icon active" : "sidebar-icon")}
+                        aria-label="Scheduled message"
+                        title="Scheduled message"
+                    >
+                        <LuMessageCircleHeart aria-hidden="true" />
+                    </NavLink>
 
                 </div>
 

@@ -69,7 +69,7 @@ export default function ChatListPage() {
     const [chats, setChats] = useState<Chat[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [mood, setMood] = useState<string>("gray");
+    const [mood, setMood] = useState<string>("grey");
 
     useEffect(() => {
         async function load() {
@@ -79,7 +79,7 @@ export default function ChatListPage() {
                 setChats(data.chats);
 
                 const p = await apiGetMyProfile();
-                setMood(p.dailyMood ?? "gray");
+                setMood(p.dailyMood ?? "grey");
             } catch (e) {
                 setError("Failed to load chats, " + e);
             } finally {
@@ -133,7 +133,7 @@ export default function ChatListPage() {
                 <div style={{ textAlign: "center" }}>
                         <MoodIllustration mood={mood} />
 
-                        {mood === "gray" ? (
+                        {mood === "grey" ? (
                             <Link to="/mood" className="mood-log-link">
                                 <FaTrafficLight /> Log Mood?
                             </Link>

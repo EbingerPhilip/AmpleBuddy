@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../state/AuthContext";
 import { apiGetMyChats, type Chat } from "../services/apiUser";
-import { apiCreateChat } from "../services/apiChat";
+import { apiCreateChat, apiCreateGroupChat } from "../services/apiChat";
 import {
     apiAcceptContactRequest,
     apiDenyContactRequest,
@@ -33,6 +33,11 @@ export default function ContactListPage() {
 
     const [usernameToRequest, setUsernameToRequest] = useState("");
     const [chats, setChats] = useState<Chat[]>([]);
+
+    const [groupOpen, setGroupOpen] = useState(false);
+    const [groupName, setGroupName] = useState("");
+    const [groupSelected, setGroupSelected] = useState<Record<number, boolean>>({});
+    const [groupCreating, setGroupCreating] = useState(false);
 
     const myId = useMemo(() => Number(userId ?? 0), [userId]);
 
@@ -129,6 +134,50 @@ export default function ContactListPage() {
         }
     }
 
+    async function onCreateGroupChat() {
+        try {
+            setError(null);
+
+            const name = groupName.trim();
+            if (!name) {
+                setError("Please enter a group name.");
+                return;
+            }
+
+            const selectedIds = contacts
+                .map((c) => c.userId)
+                .filter((id) => groupSelected[id]);
+
+            // Exclusions (per requirements)
+            const filtered = selectedIds.filter((id) => id !== 1 && id !== 2 && id !== myId);
+
+            const members = [myId, ...filtered];
+
+            if (members.length < 3) {
+                setError("Groupchat must have at least 3 members (including you).");
+                return;
+            }
+
+            setGroupCreating(true);
+            const chatId = await apiCreateGroupChat(name, members);
+
+            // close modal + reset
+            setGroupOpen(false);
+            setGroupName("");
+            setGroupSelected({});
+
+            navigate(`/chat/${chatId}`);
+        } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : "Failed to create groupchat");
+        } finally {
+            setGroupCreating(false);
+        }
+    }
+
+    function toggleGroupMember(id: number) {
+        setGroupSelected((prev) => ({ ...prev, [id]: !prev[id] }));
+    }
+
     async function onAccept(requesterId: number) {
         try {
             setError(null);
@@ -172,14 +221,16 @@ export default function ContactListPage() {
                                         <LuMessageCircle />
                                     </button>
 
-                                    <Link
-                                        to="/home"
-                                        className="contact-icon-link"
+                                    <button
+                                        type="button"
+                                        className="contact-icon-button"
                                         title="Create Groupchat"
                                         aria-label="Create Groupchat"
+                                        onClick={() => setGroupOpen(true)}
                                     >
                                         <LuMessageCircleCode />
-                                    </Link>
+                                    </button>
+
                                 </div>
 
                                 <div className="contact-name">{c.nickname}</div>
@@ -206,8 +257,15 @@ export default function ContactListPage() {
                         <input
                             value={usernameToRequest}
                             onChange={(e) => setUsernameToRequest(e.target.value)}
-                            placeholder="Search username…"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && !(e as any).isComposing) {
+                                    e.preventDefault();
+                                    void onSendRequest();
+                                }
+                            }}
+                            placeholder="Search by email…"
                         />
+
                         <button
                             type="button"
                             className="contact-icon-button"
@@ -255,6 +313,65 @@ export default function ContactListPage() {
                     {requests.length === 0 && !loading && <p>No contact requests.</p>}
                 </aside>
             </div>
+            {groupOpen ? (
+                <div className="modal-overlay" role="dialog" aria-modal="true">
+                    <div className="modal">
+                        <h3 className="modal-title">Create groupchat</h3>
+
+                        <label className="form-group">
+                            <span className="form-label">Group name</span>
+                            <input
+                                value={groupName}
+                                onChange={(e) => setGroupName(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" && !(e as any).isComposing) {
+                                        e.preventDefault();
+                                        void onCreateGroupChat();
+                                    }
+                                }}
+                                placeholder="Enter a name…"
+                            />
+                        </label>
+
+                        <div className="group-create-list">
+                            {contacts
+                                .filter((c) => c.userId !== 1 && c.userId !== 2 && c.userId !== myId)
+                                .map((c) => (
+                                    <label key={c.userId} className="group-create-item">
+                                        <input
+                                            type="checkbox"
+                                            checked={Boolean(groupSelected[c.userId])}
+                                            onChange={() => toggleGroupMember(c.userId)}
+                                        />
+                                        <span>{c.nickname}</span>
+                                    </label>
+                                ))}
+                        </div>
+
+                        <div className="modal-actions">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setGroupOpen(false);
+                                    setGroupName("");
+                                    setGroupSelected({});
+                                }}
+                                disabled={groupCreating}
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => void onCreateGroupChat()}
+                                disabled={groupCreating}
+                            >
+                                {groupCreating ? "Creating..." : "Create"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
         </main>
     );
 }

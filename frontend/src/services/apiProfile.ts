@@ -3,10 +3,13 @@ import { authFetch } from "../state/AuthFetch";
 export type PronounsOption = "she/her" | "he/him" | "they/them" | "prefer not to say";
 
 export type BuddyPreferences = {
-    gender?: string;
-    age?: string;
-    minGreen?: number;
+    gender?: string | null;
+    age?: number | null;       // legacy (may exist)
+    ageMin?: number | null;
+    ageMax?: number | null;
+    minGreen?: number | null;
 };
+
 
 export type MyProfile = {
     userid: number;
@@ -35,7 +38,7 @@ export type ContactPublicProfile = {
     profilePicUrl: string | null;
 };
 
-export type Mood = "green" | "yellow" | "red" | "gray";
+export type Mood = "green" | "yellow" | "red" | "grey";
 
 export type MoodHistoryRow = {
     userid: number;
@@ -54,15 +57,30 @@ export async function apiGetMyProfile(): Promise<MyProfile> {
     const res = await authFetch("/api/user/me");
     if (!res.ok) throw new Error("Failed to load profile");
     const body = await res.json();
-    return body.data as MyProfile;
+    const profile = body.data as MyProfile;
+
+    // Load preferences separately (profile endpoint does not include them)
+    try {
+        const prefRes = await authFetch(`/api/preferences/${profile.userid}`);
+        if (prefRes.ok) {
+            const prefBody = await prefRes.json();
+            profile.preferences = prefBody.data as BuddyPreferences;
+        } else {
+            profile.preferences = null;
+        }
+    } catch {
+        profile.preferences = null;
+    }
+
+    return profile;
 }
 
 export async function apiUpdateMyProfile(updates: {
     nicknames?: string;
     pronouns?: PronounsOption;
     dateOfBirth?: string; // YYYY-MM-DD
-    dobHidden?: 0 | 1;
-    instantBuddy?: 0 | 1;
+    dobHidden?: boolean;
+    instantBuddy?: boolean;
     theme?: "light" | "dark" | "colourblind";
 }): Promise<void> {
     const res = await authFetch("/api/user/edit", {
@@ -105,5 +123,85 @@ export async function apiGetContactMoodHistory(userId: number): Promise<MoodHist
     if (!res.ok) throw new Error("Failed to load contact mood history");
     const body = await res.json();
     return body.data as MoodHistoryRow[];
+}
+
+export type BuddyPreferencesUpdate = {
+    gender: "male" | "female" | "other" | "hidden" | null;
+    minGreen: number | null;
+    ageMin: number | null;
+    ageMax: number | null;
+};
+
+export async function apiUpsertMyPreferences(userId: number, prefs: BuddyPreferencesUpdate): Promise<void> {
+    // If preferences exist, PUT; else POST /new
+    // Backend does not require auth, but authFetch is fine here.
+    const putRes = await authFetch(`/api/preferences/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(prefs),
+    });
+
+    if (putRes.ok) return;
+
+    // If update fails (e.g. row missing), try create
+    const postRes = await authFetch(`/api/preferences/new`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, ...prefs }),
+    });
+
+    if (!postRes.ok) {
+        const body = await postRes.json().catch(() => null);
+        throw new Error(body?.error ?? "Failed to save preferences");
+    }
+}
+
+export async function apiDeleteMyAccount(password: string): Promise<void> {
+    const res = await authFetch("/api/user/delete-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+    });
+
+    if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error ?? "Failed to delete account");
+    }
+}
+
+// Downloads a TXT export of the current user's chats they are currently in.
+export async function apiRetrieveChatLogs(): Promise<void> {
+    const res = await authFetch("/api/user/chat-logs", { method: "GET" });
+
+    if (!res.ok) {
+        // Try JSON error first, then fall back to text
+        const ct = res.headers.get("content-type") ?? "";
+        if (ct.includes("application/json")) {
+            const body = await res.json().catch(() => null);
+            throw new Error(body?.error ?? `Failed to retrieve chat logs (HTTP ${res.status})`);
+        }
+
+        const text = await res.text().catch(() => "");
+        const detail = text ? ` — ${text.slice(0, 200)}` : "";
+        throw new Error(`Failed to retrieve chat logs (HTTP ${res.status})${detail}`);
+    }
+
+    const blob = await res.blob();
+
+    // Try to honour filename from Content-Disposition
+    const cd = res.headers.get("content-disposition") ?? "";
+    const match = /filename\*?=(?:UTF-8''|\")?([^\";]+)/i.exec(cd);
+    const filename = match?.[1]
+        ? decodeURIComponent(match[1]).replace(/\"/g, "")
+        : "amplebuddy_chat_logs.txt";
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
 }
 

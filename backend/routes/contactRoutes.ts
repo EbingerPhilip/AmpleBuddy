@@ -147,7 +147,7 @@ router.get("/:userId", requireAuth, async (req, res) => {
                 userid: safeUser.userid,
                 nicknames: safeUser.nicknames,
                 pronouns: safeUser.pronouns,
-                dobHidden: Boolean(safeUser.dobHidden),
+                dobHidden: Number(safeUser.dobHidden) as 0 | 1,
                 dateOfBirth: safeUser.dateOfBirth,
                 dailyMood: safeUser.dailyMood,
                 hasProfilePic,

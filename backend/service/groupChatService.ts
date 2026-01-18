@@ -12,11 +12,17 @@ class GroupChatService {
       throw new Error("Current user must be part of the group chat");
     }
 
-    if (members.length < 2) {
-      throw new Error("Group chat must have at least 2 members");
-    }
+      // Must have at least 3 members including admin
+      if (members.length < 3) {
+          throw new Error("Group chat must have at least 3 members");
+      }
 
-    if (!groupname || groupname.trim().length === 0) {
+      // Disallow deleted user (1) and self/system (2)
+      if (members.includes(1) || members.includes(2)) {
+          throw new Error("Deleted user (1) and self (2) cannot be in group chats");
+      }
+
+      if (!groupname || groupname.trim().length === 0) {
       throw new Error("Group name is required");
     }
 
@@ -38,7 +44,17 @@ class GroupChatService {
 
   async getGroupChatById(chatId: number): Promise<GroupChat> {
     const chatData = await groupChatRepository.getGroupChatById(chatId);
-    if (!chatData) throw new Error("Group chat not found");
+      // If admin is deleted (1), move admin to the next real member
+      if (chatData?.admin === 1) {
+          const membersNow = await groupChatRepository.getGroupChatMembers(chatId);
+          const nextAdmin = membersNow.find((id) => id !== 1 && id !== 2);
+          if (nextAdmin) {
+              await groupChatRepository.updateGroupChatAdmin(chatId, nextAdmin);
+              chatData.admin = nextAdmin;
+          }
+      }
+
+      if (!chatData) throw new Error("Group chat not found");
 
     const members = await groupChatRepository.getGroupChatMembers(chatId);
     const messageIds = await groupChatRepository.getGroupChatMessageIds(chatId);
@@ -100,6 +116,22 @@ class GroupChatService {
   ): Promise<{ userDecoupled: boolean; chatDeleted: boolean }> {
     return chatService.decoupleUserFromChat(chatId, userId, fakeUserId);
   }
+
+  async setGroupChatAdmin(chatId: number, newAdminId: number, currentUserId: number): Promise<void> {
+      const existing = await groupChatRepository.getGroupChatById(chatId);
+      if (!existing) throw new Error("Group chat not found");
+
+      const admin = await groupChatRepository.getGroupChatAdmin(chatId);
+      if (admin !== currentUserId) throw new Error("Only the group admin can change the admin");
+
+      const members = await groupChatRepository.getGroupChatMembers(chatId);
+      if (!members.includes(newAdminId)) throw new Error("New admin must be a member of the group");
+
+      if (newAdminId === 1 || newAdminId === 2) throw new Error("Cannot assign admin to deleted/self user");
+
+      await groupChatRepository.updateGroupChatAdmin(chatId, newAdminId);
+  }
+
 }
 
 export const groupChatService = new GroupChatService();
