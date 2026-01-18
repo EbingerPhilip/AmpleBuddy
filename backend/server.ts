@@ -88,4 +88,4 @@ const io = new Server(server, {
 });
 
 configureSockets(io);
-scheduleDailyCleanup();
+scheduleDailyCleanup()
