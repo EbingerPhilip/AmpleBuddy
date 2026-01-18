@@ -281,6 +281,8 @@ export default function ViewChatPage() {
 
     const isGroup = group != null;
     const isAdmin = isGroup && userId != null && group!.admin === Number(userId);
+    // lazy workaround to detect self-chat: is chat title "self"? Used to hide the "Decouple" button
+    const isSelfChat = !isGroup && chatTitle.toLowerCase() === "self";
 
     function memberLabel(id: number): string {
         return memberInfo[id]?.nickname ?? `User ${id}`;
@@ -429,6 +431,8 @@ export default function ViewChatPage() {
         }
     }
 
+
+    // selective rendering of "Decouple" button - this prevents leaving self-chats
     return (
         <main className="page page-wide">
             <div className="chat-header">
@@ -455,6 +459,8 @@ export default function ViewChatPage() {
                         </button>
                     )}
 
+
+                    {isSelfChat ? null : (
                     <button
                         type="button"
                         className="chat-header-btn"
@@ -464,6 +470,7 @@ export default function ViewChatPage() {
                     >
                         Decouple
                     </button>
+                    )}
                 </div>
             </div>
 
