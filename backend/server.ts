@@ -11,11 +11,11 @@ import preferencesRoutes from "./routes/preferencesRoutes";
 import userRoutes from "./routes/userRoutes";
 import contactRoutes from "./routes/contactRoutes";
 import contactRequestsRoutes from "./routes/contactRequestsRoutes";
-import groupChatRoutes  from "./routes/groupChatRoutes";
+import groupChatRoutes from "./routes/groupChatRoutes";
 import previewRoutes from "./routes/previewRoutes";
 import {Server} from 'socket.io';
 import {configureSockets} from "./routes/sockets"
-import { startupService } from "./service/startupService";
+import {startupService} from "./service/startupService";
 
 
 dotenv.config();
@@ -24,25 +24,16 @@ app.use(cors());
 app.use(express.json());
 const PORT = Number(process.env.PORT ?? 3000);
 
-
-console.log("[BOOT] Starting backend…");
-console.log("[BOOT] CWD:", process.cwd());
-console.log("[BOOT] __dirname:", __dirname);
-console.log("[BOOT] PORT:", process.env.PORT);
-console.log("[BOOT] HTTPS_KEY_PATH:", process.env.HTTPS_KEY_PATH);
-console.log("[BOOT] HTTPS_CERT_PATH:", process.env.HTTPS_CERT_PATH);
-
-
 const frontendPath = path.join(__dirname, "../frontend/dist");
 
 app.use(express.static(frontendPath));
 app.use(
-  "/profile-pics",
-  express.static(path.join(__dirname, "../backend/public/profile-pics"))
+    "/profile-pics",
+    express.static(path.join(__dirname, "../backend/public/profile-pics"))
 );
 app.use(
-  "/documents",
-  express.static(path.join(__dirname, "../backend/public/documents"))
+    "/documents",
+    express.static(path.join(__dirname, "../backend/public/documents"))
 );
 
 
@@ -82,7 +73,7 @@ app.get(/^(?!\/api\/).*/, (_req, res) => {
 
 const server = https.createServer(httpsOptions, app);
 server.listen(PORT, () => {
-    console.log(`[BOOT] Server running at https://localhost:${PORT}`);
+    console.log(`[BOOT] Backend running at https://localhost:${PORT}\n[BOOT] FRONTEND running at https://localhost:4000`);
 });
 
 startupService.runStartupMaintenance().catch((err) => {

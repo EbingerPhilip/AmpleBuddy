@@ -1,7 +1,7 @@
 import "../css/global.css";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { FiUser } from "react-icons/fi";
+import {useEffect, useState} from "react";
+import {useParams} from "react-router-dom";
+import {FiUser} from "react-icons/fi";
 import {
     apiGetContactMoodHistory,
     apiGetContactProfile,
@@ -57,7 +57,7 @@ function buildDailySeries(rows: MoodHistoryRow[], daysBack: number) {
     while (cur <= end) {
         const d = isoDayLocal(cur);
         const mood = map.get(d) ?? "grey";
-        out.push({ date: d, mood, value: moodToValue(mood) });
+        out.push({date: d, mood, value: moodToValue(mood)});
         cur.setDate(cur.getDate() + 1);
     }
     return out;
@@ -84,7 +84,7 @@ function trimRecentGreyStages<T extends { mood: string }>(series: T[]): T[] {
 }
 
 export default function ContactProfilePage() {
-    const { userId } = useParams();
+    const {userId} = useParams();
     const contactId = Number(userId);
 
     const [profile, setProfile] = useState<ContactPublicProfile | null>(null);
@@ -155,9 +155,9 @@ export default function ContactProfilePage() {
                     <section className="profile-header">
                         <div className="profile-picture">
                             {picUrl ? (
-                                <img src={picUrl} alt="Profile" className="profile-picture-img" />
+                                <img src={picUrl} alt="Profile" className="profile-picture-img"/>
                             ) : (
-                                <FiUser size={48} aria-label="No profile picture" />
+                                <FiUser size={48} aria-label="No profile picture"/>
                             )}
                         </div>
                     </section>
@@ -167,7 +167,9 @@ export default function ContactProfilePage() {
                         <ul>
                             <li><strong>Current mood:</strong> {profile.dailyMood}</li>
                             <li><strong>Nickname:</strong> {profile.nicknames ?? "—"}</li>
-                            <li><strong>Preferred pronouns:</strong> {profile.pronouns === "hidden" ? "prefer not to say" : profile.pronouns}</li>
+                            <li><strong>Preferred
+                                pronouns:</strong> {profile.pronouns === "hidden" ? "prefer not to say" : profile.pronouns}
+                            </li>
                             <li><strong>Age:</strong> {showAge ? (age ?? "—") : "Hidden"}</li>
                         </ul>
                     </section>
@@ -216,8 +218,9 @@ export default function ContactProfilePage() {
 
                             return (
                                 <div className="mood-chart">
-                                    <svg viewBox={`0 0 ${w} ${h}`} width="100%" height="200" role="img" aria-label="Mood history chart">
-                                        <path d={path} className="mood-line" />
+                                    <svg viewBox={`0 0 ${w} ${h}`} width="100%" height="200" role="img"
+                                         aria-label="Mood history chart">
+                                        <path d={path} className="mood-line"/>
                                         {series.map((p, i) => {
                                             const x = padX + i * xStep;
                                             const y = yForValue(p.value);
@@ -226,7 +229,7 @@ export default function ContactProfilePage() {
                                                     <circle cx={x} cy={y} r={10} className="mood-hit">
                                                         <title>{`${p.date}: ${p.mood}`}</title>
                                                     </circle>
-                                                    <circle cx={x} cy={y} r={4} className={clsForMood(p.mood)} />
+                                                    <circle cx={x} cy={y} r={4} className={clsForMood(p.mood)}/>
                                                 </g>
                                             );
                                         })}

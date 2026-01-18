@@ -111,9 +111,9 @@ html[data-theme="colourblind"] {
     --line-soft: rgba(0, 0, 0, 0.22);
 
     /* Colourblind-safe, high-contrast mood colours (Okabe–Ito, darkened) */
-    --mood-green: #007a5e;     /* teal-green */
-    --mood-yellow: #c9b800;    /* dark yellow */
-    --mood-red: #b34700;       /* orange-red */
+    --mood-green: #007a5e; /* teal-green */
+    --mood-yellow: #c9b800; /* dark yellow */
+    --mood-red: #b34700; /* orange-red */
     --mood-grey: #6b6b6b;
 
     /* Mood button fills (clearly distinct even in greyscale) */
@@ -518,9 +518,9 @@ a:focus {
     transition: transform 0.15s ease;
 }
 
-.switch input:checked + .switch-track {
-    background: var(--accent);
-}
+/*.switch input:checked + .switch-track {*/
+/*    background: var(--accent);*/
+/*}*/
 
 .switch input:checked + .switch-track .switch-thumb {
     transform: translate(20px, -50%);
@@ -667,10 +667,21 @@ a:focus {
     padding: 0.75rem;
 }
 
-.mood-dot--green { fill: var(--mood-green); }
-.mood-dot--yellow { fill: var(--mood-yellow); }
-.mood-dot--red { fill: var(--mood-red); }
-.mood-dot--grey { fill: var(--mood-grey); }
+.mood-dot--green {
+    fill: var(--mood-green);
+}
+
+.mood-dot--yellow {
+    fill: var(--mood-yellow);
+}
+
+.mood-dot--red {
+    fill: var(--mood-red);
+}
+
+.mood-dot--grey {
+    fill: var(--mood-grey);
+}
 
 .mood-line {
     stroke: var(--line);
@@ -697,9 +708,17 @@ a:focus {
     box-shadow: 0 4px 10px var(--shadow);
 }
 
-.mood-button--red { background: var(--mood-red-bg); }
-.mood-button--yellow { background: var(--mood-yellow-bg); }
-.mood-button--green { background: var(--mood-green-bg); }
+.mood-button--red {
+    background: var(--mood-red-bg);
+}
+
+.mood-button--yellow {
+    background: var(--mood-yellow-bg);
+}
+
+.mood-button--green {
+    background: var(--mood-green-bg);
+}
 
 .mood-save-button {
     width: 160px;
@@ -767,7 +786,6 @@ a:focus {
 .chat-messages {
     list-style: none;
     margin: 0;
-    padding: 0;
     overflow: auto;
     flex: 1 1 auto;
     display: flex;
@@ -981,6 +999,7 @@ a:focus {
     align-items: center;
     justify-content: center;
 }
+
 /* ===== Utilities ===== */
 .u-hidden {
     display: none !important;

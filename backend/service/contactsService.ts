@@ -1,5 +1,5 @@
-import { contactsReposetory } from "../repository/contactsReposetory";
-import { contactRequestsReposetory} from "../repository/contactRequestsReposetory";
+import {contactsReposetory} from "../repository/contactsReposetory";
+import {contactRequestsReposetory} from "../repository/contactRequestsReposetory";
 
 class ContactsService {
 

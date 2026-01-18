@@ -6,8 +6,8 @@ export type LoginResponse = {
 export async function apiLogin(username: string, password: string): Promise<LoginResponse> {
     const res = await fetch("/api/user/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({username, password}),
     });
 
     if (!res.ok) {
@@ -15,7 +15,8 @@ export async function apiLogin(username: string, password: string): Promise<Logi
         try {
             const data = (await res.json()) as { error?: string };
             if (data?.error) msg = data.error;
-        } catch { /* empty */ }
+        } catch { /* empty */
+        }
         throw new Error(msg);
     }
 
@@ -33,7 +34,7 @@ export type RegisterInput = {
 export async function apiRegister(input: RegisterInput): Promise<void> {
     const res = await fetch("/api/user/new", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
             username: input.email,          // email = username
             password: input.password,
@@ -50,7 +51,8 @@ export async function apiRegister(input: RegisterInput): Promise<void> {
             const data = (await res.json()) as { error?: string };
             console.log(data);
             if (data?.error) msg = data.error;
-        } catch { /* empty */ }
+        } catch { /* empty */
+        }
         throw new Error(msg);
     }
 }

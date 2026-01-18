@@ -1,9 +1,9 @@
 import "../css/global.css";
-import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useAuth } from "../state/AuthContext";
-import { apiGetMyChats, type Chat } from "../services/apiUser";
-import { apiGetMyProfile } from "../services/apiProfile";
+import {Link} from "react-router-dom";
+import {useEffect, useState} from "react";
+import {useAuth} from "../state/AuthContext";
+import {apiGetMyChats, type Chat} from "../services/apiUser";
+import {apiGetMyProfile} from "../services/apiProfile";
 import {
     LuMessageCircle,
     LuMessageCircleCode,
@@ -16,7 +16,7 @@ import {
     GiTrafficLightsRed,
     GiTrafficLightsReadyToGo
 } from "react-icons/gi";
-import { FaTrafficLight } from "react-icons/fa";
+import {FaTrafficLight} from "react-icons/fa";
 
 function truncate47(s: string): string {
     return s.length > 47 ? s.slice(0, 47) + "..." : s;
@@ -45,27 +45,27 @@ function getChatIcon(chat: Chat, myUserId: number) {
     const otherIds = others.map(o => o.userId);
 
     if (!chat.isGroup) {
-        if (otherIds[0] === 1) return <LuMessageCircleWarning />;
-        if (otherIds[0] === 2) return <LuMessageCircleHeart />;
-        return <LuMessageCircle />;
+        if (otherIds[0] === 1) return <LuMessageCircleWarning/>;
+        if (otherIds[0] === 2) return <LuMessageCircleHeart/>;
+        return <LuMessageCircle/>;
     }
 
     if (otherIds.length > 0 && otherIds.every(id => id === 1)) {
-        return <LuMessageCircleWarning />;
+        return <LuMessageCircleWarning/>;
     }
 
-    return <LuMessageCircleCode />;
+    return <LuMessageCircleCode/>;
 }
 
-function MoodIllustration({ mood }: { mood: string }) {
-    if (mood === "green") return <GiTrafficLightsGreen size={120} />;
-    if (mood === "yellow") return <GiTrafficLightsOrange size={120} />;
-    if (mood === "red") return <GiTrafficLightsRed size={120} />;
-    return <GiTrafficLightsReadyToGo size={120} />;
+function MoodIllustration({mood}: { mood: string }) {
+    if (mood === "green") return <GiTrafficLightsGreen size={120}/>;
+    if (mood === "yellow") return <GiTrafficLightsOrange size={120}/>;
+    if (mood === "red") return <GiTrafficLightsRed size={120}/>;
+    return <GiTrafficLightsReadyToGo size={120}/>;
 }
 
 export default function ChatListPage() {
-    const { userId } = useAuth();
+    const {userId} = useAuth();
     const [chats, setChats] = useState<Chat[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -86,6 +86,7 @@ export default function ChatListPage() {
                 setLoading(false);
             }
         }
+
         void load();
     }, []);
 
@@ -130,15 +131,15 @@ export default function ChatListPage() {
 
                 {/* RIGHT COLUMN */}
                 <aside className="home-column home-column--chats chatlist-right">
-                <div style={{ textAlign: "center" }}>
-                        <MoodIllustration mood={mood} />
+                    <div style={{textAlign: "center"}}>
+                        <MoodIllustration mood={mood}/>
 
                         {mood === "grey" ? (
                             <Link to="/mood" className="mood-log-link">
-                                <FaTrafficLight /> Log Mood?
+                                <FaTrafficLight/> Log Mood?
                             </Link>
                         ) : (
-                            <p style={{ fontSize: "1.2rem", fontWeight: 600 }}>
+                            <p style={{fontSize: "1.2rem", fontWeight: 600}}>
                                 Current mood: {mood}
                             </p>
                         )}

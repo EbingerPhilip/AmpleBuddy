@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { clearSession, loadSession, saveSession, type AuthSession } from "./AuthStorage";
-import { apiLogin } from "../services/apiClient";
-import { apiGetMyProfile } from "../services/apiProfile";
+import React, {createContext, useContext, useEffect, useMemo, useState} from "react";
+import {clearSession, loadSession, saveSession, type AuthSession} from "./AuthStorage";
+import {apiLogin} from "../services/apiClient";
+import {apiGetMyProfile} from "../services/apiProfile";
 
 type AuthContextValue = {
     isAuthenticated: boolean;
@@ -19,7 +19,7 @@ function applyTheme(theme: Theme) {
     document.documentElement.dataset.theme = theme;
 }
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({children}: { children: React.ReactNode }) {
     const [session, setSession] = useState<AuthSession | null>(() => loadSession());
 
     // Auto-logout when expired (best-effort)

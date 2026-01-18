@@ -1,72 +1,25 @@
-import { chatRepository } from "../repository/chatRepository";
-import { Chat } from "../modules/chat";
-import { messageRepository } from "../repository/messageRepository";
+import {chatRepository} from "../repository/chatRepository";
+import {Chat} from "../modules/chat";
 const pool = require("../config/db");
 
 class ChatService {
-  async createChat(members: number[]): Promise<number> {
-      if (members?.includes(1)) {
-          throw new Error("You can't message a deleted user.");
-      }
-      return chatRepository.createChat(members);
+    async createChat(members: number[]): Promise<number> {
+        if (members?.includes(1)) {
+            throw new Error("You can't message a deleted user.");
+        }
+        return chatRepository.createChat(members);
 
-  }
-
-  async getChatById(chatId: number): Promise<Chat> {
-    const chatData = await chatRepository.getChatById(chatId);
-    if (!chatData) throw new Error("Chat not found");
-    
-    const members = await chatRepository.getChatMembers(chatId);
-    const messageIds = await chatRepository.getChatMessageIds(chatId);
-    
-    return new Chat(chatId, members, messageIds);
-  }
-
-  async getUserChats(userId: number): Promise<any[]> {
-    const chatIds = await chatRepository.getUserChatIds(userId);
-    const result: any[] = [];
-    
-    for (const chatId of chatIds) {
-      const members = await chatRepository.getChatMembers(chatId);
-      const messageIds = await chatRepository.getChatMessageIds(chatId);
-      result.push(new Chat(chatId, members, messageIds));
     }
-    
-    return result;
-  }
 
-  async getChatMembers (chatId: number): Promise<any[]> {
-    return await chatRepository.getChatMembers(chatId);
-  }
+    async getChatById(chatId: number): Promise<Chat> {
+        const chatData = await chatRepository.getChatById(chatId);
+        if (!chatData) throw new Error("Chat not found");
 
-  async addMember(chatId: number, userId: number, requesterUserId: number): Promise<void> {
-    const chat = await this.getChatById(chatId);
-    
-    if (!chat.members.includes(requesterUserId)) {
-      throw new Error("Only chat members can add new members");
-    }
-    
-    if (chat.members.includes(userId)) {
-      throw new Error("User is already a member of this chat");
-    }
-    
-    await chatRepository.addMember(chatId, userId);
-  }
+        const members = await chatRepository.getChatMembers(chatId);
+        const messageIds = await chatRepository.getChatMessageIds(chatId);
 
-  async removeMember(chatId: number, userIdToRemove: number, requesterUserId: number): Promise<void> {
-    const chat = await this.getChatById(chatId);
-    
-    // probably not needed, but convenient for testing
-    if (!chat.members.includes(requesterUserId)) {
-      throw new Error("Only chat members can remove members");
+        return new Chat(chatId, members, messageIds);
     }
-    
-    if (requesterUserId !== userIdToRemove) {
-      throw new Error("You can only remove yourself");
-    }
-    
-    await chatRepository.removeMember(chatId, userIdToRemove);
-  }
 
     // Decouple (leave) a chat:
     // - user is removed from chatmembers (can no longer view the chat)
@@ -84,7 +37,10 @@ class ChatService {
 
             // Ensure the user is currently a member
             const [mRows]: any = await conn.execute(
-                `SELECT 1 FROM chatmembers WHERE chatid = ? AND userid = ? LIMIT 1`,
+                `SELECT 1
+                 FROM chatmembers
+                 WHERE chatid = ?
+                   AND userid = ? LIMIT 1`,
                 [chatId, userId]
             );
             if (!mRows || mRows.length === 0) {
@@ -93,28 +49,41 @@ class ChatService {
 
             // 1) Pseudonymise their messages in this chat
             await conn.execute(
-                `UPDATE messages SET sender = ? WHERE chatid = ? AND sender = ?`,
+                `UPDATE messages
+                 SET sender = ?
+                 WHERE chatid = ?
+                   AND sender = ?`,
                 [fakeUserId, chatId, userId]
             );
 
             // 2) If group admin, temporarily drop admin
             await conn.execute(
-                `UPDATE chatdata SET admin = NULL WHERE chatId = ? AND admin = ?`,
+                `UPDATE chatdata
+                 SET admin = NULL
+                 WHERE chatId = ?
+                   AND admin = ?`,
                 [chatId, userId]
             );
 
             // 3) Remove membership
-            await conn.execute(`DELETE FROM chatmembers WHERE chatid = ? AND userid = ?`, [chatId, userId]);
+            await conn.execute(`DELETE
+                                FROM chatmembers
+                                WHERE chatid = ?
+                                  AND userid = ?`, [chatId, userId]);
 
             // 4) Cleanup: if ONLY deleted users (userid=1) remain (including group chats), delete chat.
             const [rows]: any = await conn.execute(
-                `SELECT userid FROM chatmembers WHERE chatid = ?`,
+                `SELECT userid
+                 FROM chatmembers
+                 WHERE chatid = ?`,
                 [chatId]
             );
             const remaining: number[] = (rows ?? []).map((r: any) => Number(r.userid));
 
             const [cdRows]: any = await conn.execute(
-                `SELECT \`group\` AS isGroup, admin FROM chatdata WHERE chatId = ? LIMIT 1`,
+                `SELECT \`group\` AS isGroup, admin
+                 FROM chatdata
+                 WHERE chatId = ? LIMIT 1`,
                 [chatId]
             );
 
@@ -124,22 +93,28 @@ class ChatService {
             if (isGroup && (currentAdmin == null || Number(currentAdmin) === 1)) {
                 const nextAdmin = remaining.find((id) => id !== 1 && id !== 2);
                 if (nextAdmin) {
-                    await conn.execute(`UPDATE chatdata SET admin = ? WHERE chatId = ?`, [nextAdmin, chatId]);
+                    await conn.execute(`UPDATE chatdata
+                                        SET admin = ?
+                                        WHERE chatId = ?`, [nextAdmin, chatId]);
                 }
             }
 
             const onlyDeletedUsersRemain = remaining.length === 0 || remaining.every((id) => id === fakeUserId);
             if (onlyDeletedUsersRemain) {
                 // IMPORTANT: Membership FK has no cascade -> delete children first
-                await conn.execute(`DELETE FROM chatmembers WHERE chatid = ?`, [chatId]);
-                await conn.execute(`DELETE FROM chatdata WHERE chatId = ?`, [chatId]);
+                await conn.execute(`DELETE
+                                    FROM chatmembers
+                                    WHERE chatid = ?`, [chatId]);
+                await conn.execute(`DELETE
+                                    FROM chatdata
+                                    WHERE chatId = ?`, [chatId]);
                 // messages + messagefiles are removed by ON DELETE CASCADE from chatdata
                 await conn.commit();
-                return { userDecoupled: true, chatDeleted: true };
+                return {userDecoupled: true, chatDeleted: true};
             }
 
             await conn.commit();
-            return { userDecoupled: true, chatDeleted: false };
+            return {userDecoupled: true, chatDeleted: false};
         } catch (e) {
             await conn.rollback();
             throw e;

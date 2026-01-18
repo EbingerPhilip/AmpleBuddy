@@ -1,4 +1,4 @@
-import { loadSession } from "./AuthStorage";
+import {loadSession} from "./AuthStorage";
 
 export async function authFetch(input: RequestInfo, init: RequestInit = {}) {
     const session = loadSession();
@@ -8,5 +8,5 @@ export async function authFetch(input: RequestInfo, init: RequestInit = {}) {
         headers.set("Authorization", `Bearer ${session.token}`);
     }
 
-    return fetch(input, { ...init, headers });
+    return fetch(input, {...init, headers});
 }

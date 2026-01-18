@@ -10,18 +10,19 @@ async function runStartupMaintenance(): Promise<void> {
     // moodhistory.date is DATE, so CURDATE() is the correct comparison.
     const [moodResult]: any = await pool.execute(
         `
-        UPDATE users u
-        LEFT JOIN moodhistory mh
+            UPDATE users u
+                LEFT JOIN moodhistory mh
             ON mh.userid = u.userid
-           AND mh.date = CURDATE()
-        SET u.dailyMood = 'grey'
-        WHERE mh.userid IS NULL
-          AND u.dailyMood <> 'grey'
+                AND mh.date = CURDATE()
+                SET u.dailyMood = 'grey'
+            WHERE mh.userid IS NULL
+              AND u.dailyMood <> 'grey'
         `
     );
 
     // 2) Clear buddy pool
-    const [poolResult]: any = await pool.execute(`DELETE FROM buddypool`);
+    const [poolResult]: any = await pool.execute(`DELETE
+                                                  FROM buddypool`);
 
     console.log(
         `[BOOT] Startup maintenance complete: moods reset=${moodResult?.affectedRows ?? 0}, buddypool cleared=${poolResult?.affectedRows ?? 0}`

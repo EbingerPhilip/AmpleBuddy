@@ -1,5 +1,5 @@
-import { authFetch } from "../state/AuthFetch";
-import { loadSession } from "../state/AuthStorage";
+import {authFetch} from "../state/AuthFetch";
+import {loadSession} from "../state/AuthStorage";
 
 export type ScheduledTrigger = "Red Day" | "Yellow Day" | "Date";
 
@@ -38,7 +38,7 @@ export async function apiCreateScheduledMessage(
 
     const res = await authFetch("/api/scheduledMessage/new", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(body),
     });
 
@@ -72,7 +72,7 @@ export async function apiGetMyScheduledMessages(): Promise<ScheduledMessageRow[]
 }
 
 export async function apiDeleteScheduledMessage(messageId: number): Promise<void> {
-    const res = await authFetch(`/api/scheduledMessage/${messageId}`, { method: "DELETE" });
+    const res = await authFetch(`/api/scheduledMessage/${messageId}`, {method: "DELETE"});
 
     if (!res.ok) {
         const data = (await res.json().catch(() => null)) as { error?: string };

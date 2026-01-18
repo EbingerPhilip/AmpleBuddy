@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import type { MouseEvent as ReactMouseEvent } from "react";
-import { FaTrafficLight } from "react-icons/fa";
-import { CiCircleQuestion } from "react-icons/ci";
-import { Link, useNavigate } from "react-router-dom";
-import { FiUser } from "react-icons/fi";
+import {useEffect, useState} from "react";
+import type {MouseEvent as ReactMouseEvent} from "react";
+import {FaTrafficLight} from "react-icons/fa";
+import {CiCircleQuestion} from "react-icons/ci";
+import {Link, useNavigate} from "react-router-dom";
+import {FiUser} from "react-icons/fi";
 import {
     apiDeleteProfilePic,
     apiDeleteMyAccount,
@@ -17,7 +17,7 @@ import {
     apiGetMoodHistory,
     type MoodHistoryRow
 } from "../services/apiProfile";
-import { useAuth } from "../state/AuthContext";
+import {useAuth} from "../state/AuthContext";
 
 function calcAge(dateOfBirth: string | null): number | null {
     const iso = toIsoDateOnly(dateOfBirth);
@@ -66,9 +66,9 @@ function validateDob18(dobIso: string): string | null {
     return null;
 }
 
-function HelpTooltip({ text }: { text: string }) {
+function HelpTooltip({text}: { text: string }) {
     const [open, setOpen] = useState(false);
-    const [pos, setPos] = useState({ x: 0, y: 0 });
+    const [pos, setPos] = useState({x: 0, y: 0});
 
     function onMove(e: ReactMouseEvent<HTMLElement>) {
         const pad = 12;
@@ -82,7 +82,7 @@ function HelpTooltip({ text }: { text: string }) {
         x = Math.min(x, window.innerWidth - maxW);
         y = Math.min(y, window.innerHeight - maxH);
 
-        setPos({ x, y });
+        setPos({x, y});
     }
 
     return (
@@ -96,9 +96,9 @@ function HelpTooltip({ text }: { text: string }) {
             onMouseLeave={() => setOpen(false)}
             aria-label="Help"
         >
-            <CiCircleQuestion />
+            <CiCircleQuestion/>
             {open ? (
-                <span className="tooltip-float" role="tooltip" style={{ left: pos.x, top: pos.y }}>
+                <span className="tooltip-float" role="tooltip" style={{left: pos.x, top: pos.y}}>
                     {text}
                 </span>
             ) : null}
@@ -124,7 +124,7 @@ export default function ViewProfilePage() {
     const [pronouns, setPronouns] = useState<PronounsOption>("prefer not to say");
     const [dobHidden, setDobHidden] = useState(false);
     const [instantBuddy, setInstantBuddy] = useState(true);
-    const { logout } = useAuth();
+    const {logout} = useAuth();
     const navigate = useNavigate();
 
     // only if DOB missing
@@ -172,7 +172,7 @@ export default function ViewProfilePage() {
             setInstantBuddy(p.instantBuddy === 1);
 
         } catch (e: unknown) {
-            setError(e instanceof Error ? e.message :  "Failed to load profile");
+            setError(e instanceof Error ? e.message : "Failed to load profile");
         } finally {
             setLoading(false);
         }
@@ -219,7 +219,7 @@ export default function ViewProfilePage() {
 
 
         } catch (e: unknown) {
-            setError(e instanceof Error ? e.message :  "Failed to save");
+            setError(e instanceof Error ? e.message : "Failed to save");
         }
     }
 
@@ -276,7 +276,7 @@ export default function ViewProfilePage() {
             setPicBust((x) => x + 1);
             await load();
         } catch (e: unknown) {
-            setError(e instanceof Error ? e.message :  "Failed to upload picture");
+            setError(e instanceof Error ? e.message : "Failed to upload picture");
         }
     }
 
@@ -294,7 +294,11 @@ export default function ViewProfilePage() {
         return `${y}-${m}-${day}`;
     }
 
-    function buildDailySeries(rows: MoodHistoryRow[], daysBack: number): { date: string; mood: "green" | "yellow" | "red" | "grey"; value: number }[] {
+    function buildDailySeries(rows: MoodHistoryRow[], daysBack: number): {
+        date: string;
+        mood: "green" | "yellow" | "red" | "grey";
+        value: number
+    }[] {
         const map = new Map<string, "green" | "yellow" | "red" | "grey">();
         for (const r of rows) {
             const key = r.date.slice(0, 10);
@@ -312,7 +316,7 @@ export default function ViewProfilePage() {
         while (cur <= end) {
             const d = isoDay(cur);
             const mood = map.get(d) ?? "grey"; // not logged => grey
-            out.push({ date: d, mood, value: moodToValue(mood) });
+            out.push({date: d, mood, value: moodToValue(mood)});
             cur.setDate(cur.getDate() + 1);
         }
 
@@ -351,7 +355,7 @@ export default function ViewProfilePage() {
             setPicBust((x) => x + 1);
             await load();
         } catch (e: unknown) {
-            setError(e instanceof Error ? e.message :  "Failed to delete picture");
+            setError(e instanceof Error ? e.message : "Failed to delete picture");
         }
     }
 
@@ -361,7 +365,7 @@ export default function ViewProfilePage() {
             setDeleteBusy(true);
             await apiDeleteMyAccount(deletePassword);
             logout();
-            navigate("/login", { replace: true });
+            navigate("/login", {replace: true});
         } catch (e: unknown) {
             setError(e instanceof Error ? e.message : "Failed to delete account");
         } finally {
@@ -428,12 +432,12 @@ export default function ViewProfilePage() {
                                         // fallback if image missing
                                         setProfile((p) => {
                                             if (!p) return p;
-                                            return { ...p, profilePicUrl: null, hasProfilePic: false };
+                                            return {...p, profilePicUrl: null, hasProfilePic: false};
                                         });
                                     }}
                                 />
                             ) : (
-                                <FiUser size={48} aria-label="No profile picture" />
+                                <FiUser size={48} aria-label="No profile picture"/>
                             )}
                         </div>
 
@@ -452,7 +456,8 @@ export default function ViewProfilePage() {
                                     />
                                 </label>
 
-                                <button type="button" onClick={() => void onDeletePic()} disabled={!profile.hasProfilePic}>
+                                <button type="button" onClick={() => void onDeletePic()}
+                                        disabled={!profile.hasProfilePic}>
                                     Delete picture
                                 </button>
                             </div>
@@ -472,7 +477,7 @@ export default function ViewProfilePage() {
                                         to="/mood"
                                         title="Set your daily mood"
                                     >
-                                        <FaTrafficLight aria-label="Set mood" />
+                                        <FaTrafficLight aria-label="Set mood"/>
                                         <span>Set mood</span>
                                     </Link>
                                 ) : (
@@ -481,7 +486,7 @@ export default function ViewProfilePage() {
                             </li>
 
                             <li><strong>Theme:</strong> {profile.theme}</li>
-                            <li><strong>Buddy Matching:</strong> {profile.instantBuddy === 1 ? "On" : "Off"}</li>
+                            <li><strong>Buddy Matching?:</strong> {profile.instantBuddy === 1 ? "On" : "Off"}</li>
                         </ul>
                     </section>
 
@@ -491,7 +496,8 @@ export default function ViewProfilePage() {
 
                         <div className="form-group">
                             <span className="form-label">Preferred gender</span>
-                            <select value={prefGender} onChange={(e) => setPrefGender(e.target.value)} disabled={prefSaving}>
+                            <select value={prefGender} onChange={(e) => setPrefGender(e.target.value)}
+                                    disabled={prefSaving}>
                                 <option value="">No preference</option>
                                 <option value="male">Male</option>
                                 <option value="female">Female</option>
@@ -547,15 +553,12 @@ export default function ViewProfilePage() {
                             if (series.length === 0) {
                                 return <p>No mood history yet.</p>;
                             }
-
-
                             const w = 300;  // viewBox width
                             const h = 180;  // viewBox height
                             const padX = 12;
                             const padY = 16;
 
                             const xStep = (w - padX * 2) / Math.max(1, series.length - 1);
-
                             const yForValue = (v: number) => {
                                 // map -1..1 into chart area (top=1, middle=0, bottom=-1)
                                 const top = padY;
@@ -583,8 +586,9 @@ export default function ViewProfilePage() {
 
                             return (
                                 <div className="mood-chart">
-                                    <svg viewBox={`0 0 ${w} ${h}`} width="100%" height="200" role="img" aria-label="Mood history chart">
-                                        <path d={path} className="mood-line" />
+                                    <svg viewBox={`0 0 ${w} ${h}`} width="100%" height="200" role="img"
+                                         aria-label="Mood history chart">
+                                        <path d={path} className="mood-line"/>
 
                                         {series.map((p, i) => {
                                             const x = padX + i * xStep;
@@ -594,12 +598,12 @@ export default function ViewProfilePage() {
                                                     <circle cx={x} cy={y} r={10} className="mood-hit">
                                                         <title>{`${p.date}: ${p.mood}`}</title>
                                                     </circle>
-                                                    <circle cx={x} cy={y} r={4} className={clsForMood(p.mood)} />
+                                                    <circle cx={x} cy={y} r={4} className={clsForMood(p.mood)}/>
                                                 </g>
                                             );
                                         })}
                                     </svg>
-                                    <p style={{ margin: "0.5rem 0 0 0", fontSize: "0.85rem" }}>
+                                    <p style={{margin: "0.5rem 0 0 0", fontSize: "0.85rem"}}>
                                         Green = 1, Yellow/grey = 0, Red = -1 (missing days assumed grey).
                                     </p>
                                 </div>
@@ -617,7 +621,7 @@ export default function ViewProfilePage() {
                 <div className="form-grid">
                     <label className="form-group">
                         <span className="form-label">E-mail</span>
-                        <input value={email} readOnly disabled />
+                        <input value={email} readOnly disabled/>
                     </label>
 
                     <label>
@@ -625,7 +629,7 @@ export default function ViewProfilePage() {
                         <input
                             value={nickname}
                             onChange={(e) => setNickname(e.target.value)}
-                            style={{ width: "100%" }}
+                            style={{width: "100%"}}
                         />
                     </label>
                     <div className="profile-identity">
@@ -637,7 +641,8 @@ export default function ViewProfilePage() {
 
                     <label className="form-group">
                         <span className="form-label">Theme</span>
-                        <select value={theme} onChange={(e) => setTheme(e.target.value as "light" | "dark" | "colourblind")}>
+                        <select value={theme}
+                                onChange={(e) => setTheme(e.target.value as "light" | "dark" | "colourblind")}>
                             <option value="light">light</option>
                             <option value="dark">dark</option>
                             <option value="colourblind">colourblind</option>
@@ -658,7 +663,7 @@ export default function ViewProfilePage() {
                     </label>
 
                     <div>
-                        <div style={{ fontSize: 12 }}>Age</div>
+                        <div style={{fontSize: 12}}>Age</div>
                         {hasDob ? (
                             <div className="toggle-row">
                                 <div className="switch-row">
@@ -670,11 +675,11 @@ export default function ViewProfilePage() {
                                             onChange={(e) => setDobHidden(e.target.checked)}
                                         />
                                         <span className="switch-track" aria-hidden="true">
-                                            <span className="switch-thumb" />
+                                            <span className="switch-thumb"/>
                                         </span>
                                     </label>
                                     <span className="switch-state">{dobHidden ? "True" : "False"}</span>
-                                    <HelpTooltip text="If enabled, your age will be hidden from other users." />
+                                    <HelpTooltip text="If enabled, your age will be hidden from other users."/>
                                 </div>
                             </div>
                         ) : (
@@ -691,19 +696,20 @@ export default function ViewProfilePage() {
                     </div>
                     <div className="toggle-row">
                         <div className="switch-row">
-                            <span className="switch-label">Buddy Matching</span>
-                            <label className="switch" aria-label="Buddy Matching">
+                            <span className="switch-label">Buddy Matching?</span>
+                            <label className="switch" aria-label="Buddy Matching?">
                                 <input
                                     type="checkbox"
                                     checked={instantBuddy}
                                     onChange={(e) => setInstantBuddy(e.target.checked)}
                                 />
                                 <span className="switch-track" aria-hidden="true">
-                                    <span className="switch-thumb" />
+                                    <span className="switch-thumb"/>
                                 </span>
                             </label>
                             <span className="switch-state">{instantBuddy ? "True" : "False"}</span>
-                            <HelpTooltip text="Turning Buddy Matching off cancels the feature of matching you with a Buddy as soon as you set your daily mood, as long as that mood is set to Red or Green." />
+                            <HelpTooltip
+                                text="Turning Buddy Matching off cancels the feature of matching you with a Buddy as soon as you set your daily mood, as long as that mood is set to Red or Green."/>
                         </div>
                     </div>
 
@@ -714,9 +720,9 @@ export default function ViewProfilePage() {
             </section>
 
             {/* Chat logs export */}
-            <section className="profile-section" style={{ marginTop: "1.5rem" }}>
+            <section className="profile-section" style={{marginTop: "1.5rem"}}>
                 <h2 className="section-title">Chat logs</h2>
-                <p style={{ marginTop: 0 }}>
+                <p style={{marginTop: 0}}>
                     Download a TXT file of all messages across chats you are currently in.
                 </p>
                 <button type="button" onClick={() => void onRetrieveChatLogs()} disabled={logsBusy}>
@@ -725,15 +731,15 @@ export default function ViewProfilePage() {
             </section>
 
             {/* Danger zone */}
-            <section className="profile-section" style={{ marginTop: "1.5rem" }}>
+            <section className="profile-section" style={{marginTop: "1.5rem"}}>
                 <h2 className="section-title">Danger zone</h2>
-                <p style={{ marginTop: 0 }}>
+                <p style={{marginTop: 0}}>
                     Deleting your account is permanent. Your messages will remain, but your user will show as [deleted].
                 </p>
                 <button
                     type="button"
                     onClick={() => setDeleteOpen(true)}
-                    style={{ border: "1px solid currentColor" }}
+                    style={{border: "1px solid currentColor"}}
                 >
                     Delete account
                 </button>
@@ -762,23 +768,23 @@ export default function ViewProfilePage() {
                             width: "min(420px, 100%)",
                         }}
                     >
-                        <h3 style={{ marginTop: 0 }}>Confirm account deletion</h3>
-                        <p style={{ marginTop: 0 }}>
+                        <h3 style={{marginTop: 0}}>Confirm account deletion</h3>
+                        <p style={{marginTop: 0}}>
                             Please enter your password to delete your account.
                         </p>
 
-                        <label className="form-group" style={{ width: "100%" }}>
+                        <label className="form-group" style={{width: "100%"}}>
                             <span className="form-label">Password</span>
                             <input
                                 type="password"
                                 value={deletePassword}
                                 onChange={(e) => setDeletePassword(e.target.value)}
-                                style={{ width: "100%" }}
+                                style={{width: "100%"}}
                                 autoFocus
                             />
                         </label>
 
-                        <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+                        <div style={{display: "flex", gap: "0.5rem", justifyContent: "flex-end"}}>
                             <button
                                 type="button"
                                 onClick={() => {

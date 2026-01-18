@@ -17,40 +17,28 @@ export class Message {
     }
 
     static async create(userId: number, chatId: number, text: string): Promise<Message> {
-    const messageId = await messageRepository.createMessage(userId, chatId, text);
-    const messageData = await messageRepository.getMessageById(messageId); // Fetch the full message data, nessecary to get timestamp
-    return new Message(
-      messageData.messageid,
-      messageData.userid,
-      messageData.chatid,
-      new Date(messageData.timeSent), // Convert string-timestamp to Date object
-      messageData.text
-    );
-  }
-
-    async edit(newText: string): Promise<void> {
-        const now = new Date(); // Buisness logic was moved to service layer, only DB update including new timestamp remains here
-        await messageRepository.updateMessage(this.messageid, newText);
-        this.text = newText;
-        this.timeSent = now;
+        const messageId = await messageRepository.createMessage(userId, chatId, text);
+        const messageData = await messageRepository.getMessageById(messageId); // Fetch the full message data, nessecary to get timestamp
+        return new Message(
+            messageData.messageid,
+            messageData.userid,
+            messageData.chatid,
+            new Date(messageData.timeSent), // Convert string-timestamp to Date object
+            messageData.text
+        );
     }
 
-    
     static async findById(messageId: number): Promise<Message | null> {
-    const messageData = await messageRepository.getMessageById(messageId);
-    if (!messageData) return null;
-    return new Message(
-      messageData.messageid,
-      messageData.userid,
-      messageData.chatid,
-      new Date(messageData.date),
-      messageData.text
-    );
-  }
-    async deleteMessage(): Promise<void> {
-        await messageRepository.deleteMessage(this.messageid);
-        console.log("Message " + this.messageid + " has been deleted!");
+        const messageData = await messageRepository.getMessageById(messageId);
+        if (!messageData) return null;
+        return new Message(
+            messageData.messageid,
+            messageData.userid,
+            messageData.chatid,
+            new Date(messageData.date),
+            messageData.text
+        );
     }
 }
 
-module.exports = { Message };
+module.exports = {Message};

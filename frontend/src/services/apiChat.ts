@@ -1,4 +1,4 @@
-import { authFetch } from "../state/AuthFetch";
+import {authFetch} from "../state/AuthFetch";
 
 export type ChatMessageRow = {
     messageId: number;
@@ -24,18 +24,6 @@ export async function apiGetChatMessages(chatId: number): Promise<ChatMessageRow
     return body.data as ChatMessageRow[];
 }
 
-export async function apiSendChatMessage(chatId: number, text: string): Promise<void> {
-    const res = await authFetch(`/api/messages/new`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chatId, text }),
-    });
-    if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        throw new Error(body?.error ?? "Failed to send message");
-    }
-}
-
 export async function apiSendChatFile(
     chatId: number,
     text: string,
@@ -57,7 +45,7 @@ export async function apiSendChatFile(
     }
     const body = await res.json();
 
-    return { messageId: body.messageId as number, link: body.link as string };
+    return {messageId: body.messageId as number, link: body.link as string};
 }
 
 export async function apiGetChatTitle(chatId: number): Promise<string> {
@@ -70,8 +58,8 @@ export async function apiGetChatTitle(chatId: number): Promise<string> {
 export async function apiCreateChat(members: number[]): Promise<number> {
     const res = await authFetch(`/api/chats/new`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ members }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({members}),
     });
     if (!res.ok) {
         const body = await res.json().catch(() => null);
@@ -84,7 +72,7 @@ export async function apiCreateChat(members: number[]): Promise<number> {
 export async function apiDecoupleFromChat(chatId: number): Promise<{ chatDeleted: boolean }> {
     const res = await authFetch(`/api/chats/${chatId}/decouple`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({}),
     });
     if (!res.ok) {
@@ -92,14 +80,14 @@ export async function apiDecoupleFromChat(chatId: number): Promise<{ chatDeleted
         throw new Error(body?.error ?? "Failed to leave chat");
     }
     const body = await res.json().catch(() => null);
-    return { chatDeleted: Boolean(body?.chatDeleted) };
+    return {chatDeleted: Boolean(body?.chatDeleted)};
 }
 
 export async function apiEditMessage(messageId: number, sender: number, text: string): Promise<void> {
     const res = await authFetch(`/api/messages/${messageId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sender, text }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({sender, text}),
     });
 
     if (!res.ok) {
@@ -111,8 +99,8 @@ export async function apiEditMessage(messageId: number, sender: number, text: st
 export async function apiCreateGroupChat(groupname: string, members: number[]): Promise<number> {
     const res = await authFetch(`/api/groupchats/create`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ groupname, members }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({groupname, members}),
     });
     if (!res.ok) {
         const body = await res.json().catch(() => null);
@@ -146,8 +134,8 @@ export async function apiGetGroupChat(chatId: number): Promise<GroupChatDetails>
 export async function apiAddToGroupChat(chatId: number, targetUserId: number): Promise<void> {
     const res = await authFetch(`/api/groupchats/add`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chatId, targetUserId }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({chatId, targetUserId}),
     });
     if (!res.ok) {
         const body = await res.json().catch(() => null);
@@ -158,8 +146,8 @@ export async function apiAddToGroupChat(chatId: number, targetUserId: number): P
 export async function apiRemoveFromGroupChat(chatId: number, targetUserId: number): Promise<void> {
     const res = await authFetch(`/api/groupchats/remove`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chatId, targetUserId }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({chatId, targetUserId}),
     });
     if (!res.ok) {
         const body = await res.json().catch(() => null);
@@ -170,8 +158,8 @@ export async function apiRemoveFromGroupChat(chatId: number, targetUserId: numbe
 export async function apiRenameGroupChat(chatId: number, newGroupName: string): Promise<void> {
     const res = await authFetch(`/api/groupchats/${chatId}/rename`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ newGroupName }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({newGroupName}),
     });
     if (!res.ok) {
         const body = await res.json().catch(() => null);
@@ -182,8 +170,8 @@ export async function apiRenameGroupChat(chatId: number, newGroupName: string): 
 export async function apiSetGroupChatAdmin(chatId: number, newAdminId: number): Promise<void> {
     const res = await authFetch(`/api/groupchats/${chatId}/admin`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ newAdminId }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({newAdminId}),
     });
     if (!res.ok) {
         const body = await res.json().catch(() => null);

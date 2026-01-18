@@ -1,7 +1,7 @@
-Installation Guide: 
+Installation Guide:
 
-step 1 
-insure Node is up to date: 
+step 1
+insure Node is up to date:
 I used node 24.10.1
 
 step 2:

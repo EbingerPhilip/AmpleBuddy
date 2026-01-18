@@ -1,9 +1,9 @@
 import "../css/global.css";
-import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../state/AuthContext";
-import { apiGetMyChats, type Chat } from "../services/apiUser";
-import { apiCreateChat, apiCreateGroupChat } from "../services/apiChat";
+import {useEffect, useMemo, useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
+import {useAuth} from "../state/AuthContext";
+import {apiGetMyChats, type Chat} from "../services/apiUser";
+import {apiCreateChat, apiCreateGroupChat} from "../services/apiChat";
 import {
     apiAcceptContactRequest,
     apiDenyContactRequest,
@@ -15,14 +15,22 @@ import {
     type ContactUser
 } from "../services/apiContacts";
 
-import { LuContact, LuMessageCircle, LuMessageCircleCode, LuMessageCirclePlus, LuMessageCircleQuestion, LuMessageCircleX } from "react-icons/lu";
+import {
+    LuContact,
+    LuMessageCircle,
+    LuMessageCircleCode,
+    LuMessageCirclePlus,
+    LuMessageCircleQuestion,
+    LuMessageCircleX
+} from "react-icons/lu";
 
 function truncate47(s: string): string {
     return s.length > 47 ? s.slice(0, 47) + "..." : s;
 }
+
 export default function ContactListPage() {
     const navigate = useNavigate();
-    const { userId } = useAuth();
+    const {userId} = useAuth();
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -175,7 +183,7 @@ export default function ContactListPage() {
     }
 
     function toggleGroupMember(id: number) {
-        setGroupSelected((prev) => ({ ...prev, [id]: !prev[id] }));
+        setGroupSelected((prev) => ({...prev, [id]: !prev[id]}));
     }
 
     async function onAccept(requesterId: number) {
@@ -218,7 +226,7 @@ export default function ContactListPage() {
                                         title="Create Chat"
                                         onClick={() => void onCreateOrOpenChat(c.userId)}
                                     >
-                                        <LuMessageCircle />
+                                        <LuMessageCircle/>
                                     </button>
 
                                     <button
@@ -228,7 +236,7 @@ export default function ContactListPage() {
                                         aria-label="Create Groupchat"
                                         onClick={() => setGroupOpen(true)}
                                     >
-                                        <LuMessageCircleCode />
+                                        <LuMessageCircleCode/>
                                     </button>
 
                                 </div>
@@ -241,7 +249,7 @@ export default function ContactListPage() {
                                     title="View Profile"
                                     aria-label="View Profile"
                                 >
-                                    <LuContact />
+                                    <LuContact/>
                                 </Link>
                             </li>
 
@@ -272,7 +280,7 @@ export default function ContactListPage() {
                             title="Send contact request"
                             onClick={() => void onSendRequest()}
                         >
-                            <LuMessageCircleQuestion />
+                            <LuMessageCircleQuestion/>
                         </button>
                     </div>
 
@@ -293,7 +301,7 @@ export default function ContactListPage() {
                                             title="Accept"
                                             onClick={() => void onAccept(r.useridRequester)}
                                         >
-                                            <LuMessageCirclePlus />
+                                            <LuMessageCirclePlus/>
                                         </button>
 
                                         <button
@@ -302,7 +310,7 @@ export default function ContactListPage() {
                                             title="Deny"
                                             onClick={() => void onDeny(r.useridRequester)}
                                         >
-                                            <LuMessageCircleX />
+                                            <LuMessageCircleX/>
                                         </button>
                                     </div>
                                 </li>

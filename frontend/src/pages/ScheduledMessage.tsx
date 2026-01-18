@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import {useEffect, useMemo, useState} from "react";
 import {
     apiCreateScheduledMessage,
     apiDeleteScheduledMessage,
@@ -167,7 +167,8 @@ export default function ScheduledMessagePage() {
                                 onChange={(e) => setDueDate(e.target.value)}
                             />
                             <div className="helper-text">
-                                Delivered on the selected day by user <strong>2</strong> (“self”) and removed from the schedule.
+                                Delivered on the selected day by user <strong>2</strong> (“self”) and removed from the
+                                schedule.
                             </div>
                         </div>
                     )}
