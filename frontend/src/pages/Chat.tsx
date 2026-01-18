@@ -613,11 +613,12 @@ export default function ViewChatPage() {
                             </div>
                         )}
 
+                        <label className="u-hidden" htmlFor="chat-compose-input">Message</label>
                         <input
+                            id="chat-compose-input"
                             value={draft}
                             onChange={(e) => setDraft(e.target.value)}
                             onKeyDown={(e) => {
-                                // Enter sends (like login). Avoid interfering with IME composition.
                                 if (e.key === "Enter" && !e.shiftKey && !(e as any).isComposing) {
                                     e.preventDefault();
                                     void onSend();
@@ -625,9 +626,11 @@ export default function ViewChatPage() {
                             }}
                             placeholder={selectedFile ? "Add a message for the attachment…" : "Type a message…"}
                             disabled={sending}
+                            aria-label="Message"
+                            aria-describedby={selectedFile ? "chat-attachment-hint" : undefined}
                         />
 
-
+                        <label className="u-hidden" htmlFor="chat-file">Attach file</label>
                         <input
                             type="file"
                             id="chat-file"
@@ -644,18 +647,20 @@ export default function ViewChatPage() {
                             type="button"
                             onClick={() => setShowEmojis((v) => !v)}
                             disabled={sending}
+                            aria-label={showEmojis ? "Close emoji picker" : "Open emoji picker"}
                             title="Emojis"
                         >
-                            🙂
+                        🙂
                         </button>
 
                         <button
                             type="button"
                             onClick={() => document.getElementById("chat-file")?.click()}
                             disabled={sending}
+                            aria-label="Attach a file"
                             title="Attach file"
                         >
-                            📎
+                        📎
                         </button>
 
                         <button type="button" onClick={() => void onSend()} disabled={sending}>
@@ -671,13 +676,15 @@ export default function ViewChatPage() {
                             <button type="button" onClick={() => setSelectedFile(null)} disabled={sending}>
                                 Remove
                             </button>
-                            <span className="chat-attachment-hint">Max size: 10 MB</span>
+                            <span id="chat-attachment-hint" className="chat-attachment-hint">Max size: 10 MB</span>
                         </div>
                     )}
                 </div>
             )}
             {leaveOpen ? (
-                <div className="modal-overlay" role="dialog" aria-modal="true">
+                <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="leave-chat-title" aria-describedby="leave-chat-desc">
+                    <h3 id="leave-chat-title" className="modal-title">Leave this chat?</h3>
+                    <p id="leave-chat-desc" className="modal-text">...</p>
                     <div className="modal">
                         <h3 className="modal-title">Leave this chat?</h3>
                         <p className="modal-text">
