@@ -2,7 +2,7 @@ export enum EDailyMood {
   green = 'green',
   yellow = 'yellow',
   red = 'red',
-  gray = 'gray'
+  grey = 'grey'
 }
 
 export enum ETheme {
@@ -35,7 +35,7 @@ export class User {
     username: string,
     password: string,
     nicknames: string,
-    dailyMood: EDailyMood = EDailyMood.gray,
+    dailyMood: EDailyMood = EDailyMood.grey,
     dateOfBirth: Date | null = null,
     theme: ETheme = ETheme.light,
     pronouns: EPronouns = EPronouns.hidden,

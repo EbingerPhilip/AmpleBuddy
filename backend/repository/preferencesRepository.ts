@@ -8,15 +8,17 @@ class PreferencesRepository {
     minGreen?: number | null;
   }): Promise<void> {
     const sql = `
-      INSERT INTO prefrences (userid, age, gender, minGreen)
-      VALUES (?, ?, ?, ?)
+        INSERT INTO prefrences (userid, age, ageMin, ageMax, gender, minGreen)
+        VALUES (?, ?, ?, ?, ?, ?)
     `;
-    await pool.execute(sql, [
-      pref.userid,
-      pref.age ?? null,
-      pref.gender ?? null,
-      pref.minGreen ?? null
-    ]);
+      await pool.execute(sql, [
+          pref.userid,
+          pref.age ?? null,
+          (pref as any).ageMin ?? null,
+          (pref as any).ageMax ?? null,
+          pref.gender ?? null,
+          pref.minGreen ?? null
+      ]);
   }
 
   async getPreferencesByUserId(userid: number): Promise<any | null> {
@@ -29,21 +31,27 @@ class PreferencesRepository {
     age?: number | null;
     gender?: string | null;
     minGreen?: number | null;
+    ageMin?: number | null;
+    ageMax?: number | null;
   }): Promise<void> {
     const sql = `
-      UPDATE prefrences
-      SET
-        age = COALESCE(?, age),
-        gender = COALESCE(?, gender),
-        minGreen = COALESCE(?, minGreen)
-      WHERE userid = ?
+        UPDATE prefrences
+        SET
+            age = COALESCE(?, age),
+            ageMin = COALESCE(?, ageMin),
+            ageMax = COALESCE(?, ageMax),
+            gender = COALESCE(?, gender),
+            minGreen = COALESCE(?, minGreen)
+        WHERE userid = ?
     `;
-    await pool.execute(sql, [
-      updates.age ?? null,
-      updates.gender ?? null,
-      updates.minGreen ?? null,
-      userid
-    ]);
+      await pool.execute(sql, [
+          updates.age ?? null,
+          (updates as any).ageMin ?? null,
+          (updates as any).ageMax ?? null,
+          updates.gender ?? null,
+          updates.minGreen ?? null,
+          userid
+      ]);
   }
 
 

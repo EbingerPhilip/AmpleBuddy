@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authFetch } from "../state/AuthFetch";
 
-type Mood = "green" | "yellow" | "red" | "gray";
+type Mood = "green" | "yellow" | "red" | "grey";
 
 export default function MoodPage() {
     const navigate = useNavigate();
@@ -21,16 +21,29 @@ export default function MoodPage() {
         setError(null);
 
         try {
+            // Correct endpoint: /api/users/mood (matches backend userRoutes)
             const res = await authFetch(`/api/user/mood`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ mood: selectedMood }),
             });
 
+            const body = await res.json().catch(() => null);
+
             if (!res.ok) {
-                throw new Error(`Request failed: ${res.status}`);
+                throw new Error(body?.error ?? `Request failed: ${res.status}`);
             }
-            navigate("/home"); // Redirect to homepage after saving
+
+            // Only red/green do buddy matching, and backend returns chatId when matched
+            const chatId = typeof body?.chatId === "number" ? body.chatId : null;
+            const matched = body?.matched === true;
+
+            if ((selectedMood === "red" || selectedMood === "green") && matched && chatId) {
+                navigate(`/chat/${chatId}`);
+                return;
+            }
+
+            navigate("/home");
         } catch (e) {
             setError(e instanceof Error ? e.message : "Unknown error");
         } finally {
@@ -41,7 +54,7 @@ export default function MoodPage() {
     return (
         <section className="page page-wide mood-page">
             <h1>Log your mood</h1>
-            <p>How are you doing? Green/Red will attempt buddy matching.</p>
+            <p>Green/Red will attempt buddy matching.</p>
 
             <div className="mood-card">
                 <button
@@ -69,6 +82,14 @@ export default function MoodPage() {
                 </button>
 
                 <button
+                    className={`mood-button mood-button--grey${selectedMood === "grey" ? " is-selected" : ""}`}
+                    onClick={() => { setSelectedMood("grey"); setError(null); }}
+                    disabled={loading}
+                >
+                    Grey
+                </button>
+
+                <button
                     className="mood-save-button"
                     onClick={() => void saveMood()}
                     disabled={loading}
@@ -80,6 +101,5 @@ export default function MoodPage() {
             {loading && <p>Sending…</p>}
             {error && <p role="alert" className="error">{error}</p>}
         </section>
-
     );
 }

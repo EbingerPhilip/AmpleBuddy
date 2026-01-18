@@ -1,4 +1,3 @@
-//import { pool } from "../config/db"; // ES Module import - does not work with current export style
 const pool = require("../config/db"); // CommonJS require - works with current export style
 import { json } from "stream/consumers";
 import { encrypt,decrypt } from "../config/encryption";

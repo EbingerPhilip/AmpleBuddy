@@ -11,6 +11,7 @@ import MoodAmple from "./pages/MoodAmple";
 import ChatListPage from "./pages/ChatList.tsx";
 import ContactListPage from "./pages/ContactList.tsx";
 import ContactProfilePage from "./pages/ContactProfile";
+import ScheduledMessagePage from "./pages/ScheduledMessage";
 
 
 function RequireAuth({ children }: { children: JSX.Element }) {
@@ -42,6 +43,7 @@ export default function App() {
                 <Route path="/chats" element={<ChatListPage />} />
                 <Route path="/contacts" element={<ContactListPage />} />
                 <Route path="/contact/:userId" element={<ContactProfilePage />} />
+                <Route path="/scheduled-message" element={<ScheduledMessagePage />} />
 
             </Route>
 

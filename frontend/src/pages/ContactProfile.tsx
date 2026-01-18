@@ -38,11 +38,11 @@ function isoDayLocal(d: Date): string {
 function moodToValue(mood: string): number {
     if (mood === "green") return 1;
     if (mood === "red") return -1;
-    return 0; // yellow/grey/gray
+    return 0; // yellow/grey/grey
 }
 
 function buildDailySeries(rows: MoodHistoryRow[], daysBack: number) {
-    const map = new Map<string, "green" | "yellow" | "red" | "gray">();
+    const map = new Map<string, "green" | "yellow" | "red" | "grey">();
     for (const r of rows) map.set(r.date.slice(0, 10), r.mood);
 
     const end = new Date();
@@ -51,26 +51,26 @@ function buildDailySeries(rows: MoodHistoryRow[], daysBack: number) {
     const start = new Date(end);
     start.setDate(start.getDate() - (daysBack - 1));
 
-    const out: { date: string; mood: "green" | "yellow" | "red" | "gray"; value: number }[] = [];
+    const out: { date: string; mood: "green" | "yellow" | "red" | "grey"; value: number }[] = [];
     const cur = new Date(start);
 
     while (cur <= end) {
         const d = isoDayLocal(cur);
-        const mood = map.get(d) ?? "gray";
+        const mood = map.get(d) ?? "grey";
         out.push({ date: d, mood, value: moodToValue(mood) });
         cur.setDate(cur.getDate() + 1);
     }
     return out;
 }
 
-function trimRecentGrayStages<T extends { mood: string }>(series: T[]): T[] {
+function trimRecentGreyStages<T extends { mood: string }>(series: T[]): T[] {
     const thresholds = [64, 48, 32, 16, 8];
     let out = series.slice();
 
     while (out.length > 0) {
         let streak = 0;
         for (let i = out.length - 1; i >= 0; i--) {
-            if (out[i].mood === "gray") streak++;
+            if (out[i].mood === "grey") streak++;
             else break;
         }
         if (streak < 8) break;
@@ -179,7 +179,7 @@ export default function ContactProfilePage() {
 
                         {(() => {
                             const raw = buildDailySeries(history, 90);
-                            const series = trimRecentGrayStages(raw);
+                            const series = trimRecentGreyStages(raw);
 
                             if (series.length === 0) return <p>No mood history yet.</p>;
 
@@ -211,7 +211,7 @@ export default function ContactProfilePage() {
                                 if (m === "green") return "mood-dot--green";
                                 if (m === "yellow") return "mood-dot--yellow";
                                 if (m === "red") return "mood-dot--red";
-                                return "mood-dot--gray";
+                                return "mood-dot--grey";
                             };
 
                             return (
@@ -232,7 +232,7 @@ export default function ContactProfilePage() {
                                         })}
                                     </svg>
                                     <p className="mood-chart-caption">
-                                        Green = 1, Yellow/Gray = 0, Red = -1 (missing days assumed gray).
+                                        Green = 1, Yellow/Grey = 0, Red = -1 (missing days assumed grey).
                                     </p>
                                 </div>
                             );

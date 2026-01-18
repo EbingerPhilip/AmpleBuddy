@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { clearSession, loadSession, saveSession, type AuthSession } from "./AuthStorage";
 import { apiLogin } from "../services/apiClient";
+import { apiGetMyProfile } from "../services/apiProfile";
 
 type AuthContextValue = {
     isAuthenticated: boolean;
@@ -11,6 +12,12 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+type Theme = "light" | "dark" | "colourblind";
+
+function applyTheme(theme: Theme) {
+    document.documentElement.dataset.theme = theme;
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [session, setSession] = useState<AuthSession | null>(() => loadSession());
@@ -30,6 +37,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setSession(null);
         }, msLeft);
         return () => window.clearTimeout(timer);
+    }, [session]);
+
+    useEffect(() => {
+        if (!session) {
+            // when logged out, reset to light
+            applyTheme("light");
+            return;
+        }
+
+        let cancelled = false;
+
+        (async () => {
+            try {
+                const me = await apiGetMyProfile();
+                if (!cancelled) applyTheme(me.theme);
+            } catch {
+                // if profile fetch fails, keep current theme (or fallback to light)
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
     }, [session]);
 
     async function login(username: string, password: string) {

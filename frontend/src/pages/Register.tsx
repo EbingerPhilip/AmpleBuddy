@@ -30,6 +30,42 @@ export default function RegisterPage() {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
     }
 
+// Returns YYYY-MM-DD
+    function isoDate(d: Date) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+    }
+
+// Latest allowed DOB for someone who is 18 today
+    function maxDobIso() {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 18);
+        return isoDate(d);
+    }
+
+// true if valid and >= 18 and not future
+    function validateDob18(dobIso: string): string | null {
+        if (!dobIso.trim()) return null;
+
+        // Parse as local date
+        const dob = new Date(`${dobIso}T00:00:00`);
+        if (Number.isNaN(dob.getTime())) return "Please enter a valid date of birth.";
+
+        const today = new Date();
+        const todayIso = isoDate(today);
+
+        // future date
+        if (dobIso > todayIso) return "Date of birth cannot be in the future.";
+
+        // under 18
+        if (dobIso > maxDobIso()) return "You must be at least 18 years old.";
+
+        return null;
+    }
+
+
     async function onSubmit(e: FormEvent) {
         e.preventDefault();
         setError(null);
@@ -53,6 +89,14 @@ export default function RegisterPage() {
             setError("Please enter a nickname.");
             return;
         }
+        if (dateOfBirth.trim()) {
+            const dobErr = validateDob18(dateOfBirth.trim());
+            if (dobErr) {
+                setError(dobErr);
+                return;
+            }
+        }
+
 
         setSubmitting(true);
         try {
@@ -141,6 +185,7 @@ export default function RegisterPage() {
                         name="dob"
                         type="date"
                         value={dateOfBirth}
+                        max={maxDobIso()}
                         onChange={(e) => setDateOfBirth(e.target.value)}
                     />
                 </div>

@@ -72,13 +72,42 @@ export default function HomePage() {
                 <div className="home-column home-column--news" aria-label="About AmpleBuddy">
                     <h2>About AmpleBuddy</h2>
                     <p>
-                        AmpleBuddy is a wellbeing companion. You can track your mood, chat, and review your progress.
+                        AmpleBuddy is designed to be a space where you can and chat with other empathetic users when you
+                        would like.<br/>
+                        By having users classify themselves as either 'Green' or 'Red' (or even in-between !),
+                        AmpleBuddy creates an artificial support structure.<br/><br/>
+
+                        How does this work ? Through you !<br/>
+                        Have you ever had days where you simply had to rant and get something off of your chest ? Well,
+                        there's a simple fix.<br/>
+                        Log your mood as 'Red' today and be automatically matched with a Buddy to chat with. Just make
+                        sure you have Buddy Matching on in your profile !<br/><br/>
+
+                        On the other hand, have you just recovered from an emotional pit and want to help others back up
+                        ?<br/>
+                        Or even, you simply feel very empathetic today and would like to help one of your fellow humans
+                        ?<br/>
+                        Log your mood as 'Green' and just wait for you Buddy ! You can be the shoulder people cry on
+                        just like you dreamed !<br/>
                     </p>
 
                     <h2>News</h2>
                     <ul>
-                        <li>Chats now load from the backend (temporary data).</li>
-                        <li>Next: daily mood prompt after login.</li>
+                        <li>You can now edit messages you sent in the past 10 minutes.</li>
+                        <li>Group chats now work fully !</li>
+                        <li>Colourblind mode (derived from light mode) has been implemented.</li>
+                        <li>You can now change your mood, even if you already logged it !</li>
+                        <li>Message Logs can now be retrieved on the profile page.</li>
+                        <li>Users can now decouple from chats !</li>
+                        <li>Users can now (unfortunately) delete their accounts !</li>
+                    </ul>
+                    <h2>Bug Fixes</h2>
+                    <ul>
+                        <li>Profile-pictures now actually work.</li>
+                        <li>The option to hide your age now actually does hide your age from your contacts</li>
+                        <li>Pressing enter now will automatically send the message you are writing</li>
+                        <li>You can now set your date of birth in case you forget during registration</li>
+                        <li>No more babies or time travelers ! Only people 18 years of age or older can now create accounts.</li>
                     </ul>
                 </div>
 
