@@ -1,4 +1,4 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt, {JwtPayload} from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 if (!JWT_SECRET) {
@@ -44,5 +44,5 @@ export function verifyUserToken(token: string): AuthTokenPayload {
         throw new Error("Invalid token subject (sub): expected a positive userId");
     }
 
-    return { userId };
+    return {userId};
 }

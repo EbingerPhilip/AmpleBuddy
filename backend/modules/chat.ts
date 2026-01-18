@@ -12,4 +12,4 @@ export class Chat {
     }
 }
 
-module.exports = { Chat };
+module.exports = {Chat};

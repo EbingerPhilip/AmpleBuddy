@@ -1,5 +1,5 @@
 const pool = require("../config/db");
-import { EDailyMood } from "../modules/user";
+import {EDailyMood} from "../modules/user";
 
 export type MoodHistoryRow = {
     userid: number;
@@ -10,11 +10,11 @@ export type MoodHistoryRow = {
 class MoodHistoryRepository {
     async getMoodHistory(userid: number): Promise<MoodHistoryRow[]> {
         const sql = `
-      SELECT userid, mood, date
-      FROM moodhistory
-      WHERE userid = ?
-      ORDER BY date ASC
-    `;
+            SELECT userid, mood, date
+            FROM moodhistory
+            WHERE userid = ?
+            ORDER BY date ASC
+        `;
         const [rows]: any = await pool.execute(sql, [userid]);
         return rows as MoodHistoryRow[];
     }
@@ -22,9 +22,10 @@ class MoodHistoryRepository {
     async upsertTodayMood(userId: number, mood: string): Promise<void> {
         const sql = `
             INSERT INTO moodhistory (userid, date, mood)
-            VALUES (?, CURDATE(), ?)
-                ON DUPLICATE KEY UPDATE
-                                     mood = VALUES(mood)
+            VALUES (?, CURDATE(), ?) ON DUPLICATE KEY
+            UPDATE
+                mood =
+            VALUES (mood)
         `;
         await pool.execute(sql, [userId, mood]);
     }

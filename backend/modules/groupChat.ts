@@ -1,4 +1,4 @@
-import { Chat } from "./chat";
+import {Chat} from "./chat";
 
 export class GroupChat extends Chat {
     groupname: string;
@@ -17,4 +17,4 @@ export class GroupChat extends Chat {
     }
 }
 
-module.exports = { GroupChat };
+module.exports = {GroupChat};

@@ -1,8 +1,8 @@
 import "../css/global.css";
-import { useEffect, useMemo, useState, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "../state/AuthContext";
-import { apiGetContacts, apiGetUserBasic, type ContactUser } from "../services/apiContacts";
+import {useEffect, useMemo, useState, useRef} from "react";
+import {useNavigate, useParams} from "react-router-dom";
+import {useAuth} from "../state/AuthContext";
+import {apiGetContacts, apiGetUserBasic, type ContactUser} from "../services/apiContacts";
 import {
     apiDecoupleFromChat,
     apiEditMessage,
@@ -18,13 +18,14 @@ import {
     type GroupChatDetails
 } from "../services/apiChat";
 
-import { enterChat, onIncomingMessage, socketSendMessage } from "../services/sockets";
+import {enterChat, onIncomingMessage, socketSendMessage} from "../services/sockets";
 
 function formatTime(iso: string): string {
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return iso;
     return d.toLocaleString();
 }
+
 function formatBytes(bytes: number | null | undefined): string {
     if (!bytes || bytes <= 0) return "Unknown size";
     const mb = bytes / (1024 * 1024);
@@ -43,7 +44,7 @@ function getExtFromUrl(url: string): string {
 
 async function downloadViaBlob(url: string) {
     const clean = url.split("#")[0];
-    const res = await fetch(clean, { method: "GET" });
+    const res = await fetch(clean, {method: "GET"});
     if (!res.ok) throw new Error("Download failed");
 
     const blob = await res.blob();
@@ -66,8 +67,8 @@ async function downloadViaBlob(url: string) {
 }
 
 export default function ViewChatPage() {
-    const { chatId } = useParams();
-    const { userId } = useAuth();
+    const {chatId} = useParams();
+    const {userId} = useAuth();
     const navigate = useNavigate();
 
     const numericChatId = useMemo(() => Number(chatId), [chatId]);
@@ -195,7 +196,7 @@ export default function ViewChatPage() {
     }, [numericChatId, userId]);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+        messagesEndRef.current?.scrollIntoView({behavior: "auto"});
     }, [messages]);
     useEffect(() => {
         // Fetch sizes for new links we haven’t seen yet (via HEAD Content-Length)
@@ -212,7 +213,7 @@ export default function ViewChatPage() {
             await Promise.all(
                 missing.map(async (link) => {
                     try {
-                        const res = await fetch(link, { method: "HEAD" });
+                        const res = await fetch(link, {method: "HEAD"});
                         if (!res.ok) return;
                         const len = res.headers.get("content-length");
                         const bytes = len ? Number(len) : NaN;
@@ -225,7 +226,7 @@ export default function ViewChatPage() {
 
             if (cancelled) return;
             if (Object.keys(updates).length > 0) {
-                setAttachmentSizes((prev) => ({ ...prev, ...updates }));
+                setAttachmentSizes((prev) => ({...prev, ...updates}));
             }
         })();
 
@@ -268,7 +269,7 @@ export default function ViewChatPage() {
             setDraft("");
             setShowEmojis(false);
             await load();
-            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
         } catch (e: unknown) {
             console.error(e);
             setError(e instanceof Error ? e.message : "Failed to send");
@@ -339,7 +340,7 @@ export default function ViewChatPage() {
 
             // if I removed myself, go back to chats
             if (userId != null && targetId === Number(userId)) {
-                navigate("/chats", { replace: true });
+                navigate("/chats", {replace: true});
                 return;
             }
             await load();
@@ -418,7 +419,7 @@ export default function ViewChatPage() {
             setLeaving(true);
             setError(null);
             await apiDecoupleFromChat(numericChatId);
-            navigate("/chats", { replace: true });
+            navigate("/chats", {replace: true});
         } catch (e: unknown) {
             setError(e instanceof Error ? e.message : "Failed to leave chat");
         } finally {
@@ -466,7 +467,6 @@ export default function ViewChatPage() {
             </div>
 
 
-
             {error && <p className="error" role="alert">{error}</p>}
 
             {loading ? (
@@ -479,7 +479,8 @@ export default function ViewChatPage() {
                             const link = m.link ?? null;
 
                             return (
-                                <li key={m.messageId} className={mine ? "chat-message chat-message--mine" : "chat-message"}>
+                                <li key={m.messageId}
+                                    className={mine ? "chat-message chat-message--mine" : "chat-message"}>
                                     <div className="chat-message-meta">
                                         <span className="chat-message-sender">{m.nicknames}</span>
 
@@ -514,10 +515,12 @@ export default function ViewChatPage() {
                                                 disabled={editSaving}
                                             />
                                             <div className="chat-edit-actions">
-                                                <button type="button" onClick={() => cancelEdit()} disabled={editSaving}>
+                                                <button type="button" onClick={() => cancelEdit()}
+                                                        disabled={editSaving}>
                                                     Cancel
                                                 </button>
-                                                <button type="button" onClick={() => void saveEdit(m.messageId)} disabled={editSaving}>
+                                                <button type="button" onClick={() => void saveEdit(m.messageId)}
+                                                        disabled={editSaving}>
                                                     {editSaving ? "Saving..." : "Save"}
                                                 </button>
                                             </div>
@@ -577,7 +580,7 @@ export default function ViewChatPage() {
                                                         })();
                                                     }}
                                                 >
-                                                {label}
+                                                    {label}
                                                 </button>
                                             </div>
                                         );
@@ -585,26 +588,26 @@ export default function ViewChatPage() {
                                 </li>
                             );
                         })}
-                        <div ref={messagesEndRef} />
+                        <div ref={messagesEndRef}/>
                     </ul>
 
                     <div className="chat-compose chat-compose--wrap">
-                    {showEmojis && (
-                        <div className="chat-emoji-picker" aria-label="Emoji picker">
-                        {[
+                        {showEmojis && (
+                            <div className="chat-emoji-picker" aria-label="Emoji picker">
+                                {[
                                     "😀", "😁", "😂", "🤣", "😊", "😍", "😘", "😎",
                                     "🙂", "🙃", "😉", "😭", "😡", "👍", "👎", "👏",
                                     "🙏", "💪", "🎉", "🔥", "❤️", "💛", "💚", "💙",
                                 ].map((emo) => (
-                            <button
-                                key={emo}
-                                type="button"
-                                className="chat-emoji-btn"
-                                onClick={() => setDraft((prev) => prev + emo)}
-                                aria-label={`Insert ${emo}`}
-                            >
+                                    <button
+                                        key={emo}
+                                        type="button"
+                                        className="chat-emoji-btn"
+                                        onClick={() => setDraft((prev) => prev + emo)}
+                                        aria-label={`Insert ${emo}`}
+                                    >
 
-                            {emo}
+                                        {emo}
                                     </button>
                                 ))}
                             </div>
@@ -678,7 +681,8 @@ export default function ViewChatPage() {
                     <div className="modal">
                         <h3 className="modal-title">Leave this chat?</h3>
                         <p className="modal-text">
-                            You will no longer be able to view this chat. Your messages in this chat will show as sent by a deleted user.
+                            You will no longer be able to view this chat. Your messages in this chat will show as sent
+                            by a deleted user.
                         </p>
 
                         <div className="modal-actions">

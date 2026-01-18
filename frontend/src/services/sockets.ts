@@ -1,4 +1,4 @@
-import { io, type Socket } from "socket.io-client";
+import {io, type Socket} from "socket.io-client";
 
 let socket: Socket | null = null;
 
@@ -38,12 +38,6 @@ async function ensureConnected(): Promise<Socket> {
 
         if (!s.active) s.connect();
     });
-}
-
-export function disconnectSocket(): void {
-    if (!socket) return;
-    socket.disconnect();
-    socket = null;
 }
 
 export async function enterChat(userId: number, chatId: number): Promise<void> {

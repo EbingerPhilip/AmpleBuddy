@@ -1,8 +1,8 @@
-import { requireAuth, type AuthedRequest } from "../modules/authMiddleware";
-import { groupChatService } from "../service/groupChatService";
-import { userService } from "../service/userService";
-import { Router } from "express";
-import { chatService } from "../service/chatService";
+import {requireAuth, type AuthedRequest} from "../modules/authMiddleware";
+import {groupChatService} from "../service/groupChatService";
+import {userService} from "../service/userService";
+import {Router} from "express";
+import {chatService} from "../service/chatService";
 
 const router = Router();
 
@@ -16,13 +16,13 @@ Body (raw JSON):
 }
 */
 router.post("/new", async (req, res) => {
-  try {
-    const { members } = req.body as { members: number[] };
-    const chatId = await chatService.createChat(members);
-    res.status(201).json({ chatId });
-  } catch (err) {
-    res.status(400).json({ error: (err as Error).message });
-  }
+    try {
+        const {members} = req.body as { members: number[] };
+        const chatId = await chatService.createChat(members);
+        res.status(201).json({chatId});
+    } catch (err) {
+        res.status(400).json({error: (err as Error).message});
+    }
 });
 
 /*
@@ -40,7 +40,7 @@ router.get("/:chatId/title", requireAuth, async (req, res) => {
         try {
             const gc = await groupChatService.getGroupChatById(chatId);
             if (gc?.groupname) {
-                return res.status(200).json({ success: true, title: gc.groupname });
+                return res.status(200).json({success: true, title: gc.groupname});
             }
         } catch {
             // not a group chat -> fall through
@@ -51,68 +51,15 @@ router.get("/:chatId/title", requireAuth, async (req, res) => {
         const otherId = (chat.members ?? []).find((id: number) => id !== me);
 
         if (!otherId) {
-            return res.status(200).json({ success: true, title: "Chat" });
+            return res.status(200).json({success: true, title: "Chat"});
         }
 
         const otherUser = await userService.getUserById(otherId);
         const title = otherUser?.nicknames ?? "Chat";
-        return res.status(200).json({ success: true, title });
+        return res.status(200).json({success: true, title});
     } catch (err) {
-        return res.status(400).json({ error: (err as Error).message });
+        return res.status(400).json({error: (err as Error).message});
     }
-});
-
-
-/*
-Get chat details by chatId (includes members and message IDs)
-
-GET http://localhost:3000/api/chats/:chatId
-
-*/
-router.get("/:chatId", async (req, res) => {
-  try {
-    const chatId = Number(req.params.chatId);
-    const chat = await chatService.getChatById(chatId);
-    res.json(chat);
-  } catch (err) {
-    res.status(404).json({ error: (err as Error).message });
-  }
-});
-
-/*
-Get all chats for a user
-GET http://localhost:3000/api/chats/user/:userId
-*/
-router.get("/user/:userId", async (req, res) => {
-  try {
-    const userId = Number(req.params.userId);
-    const chats = await chatService.getUserChats(userId);
-    res.json(chats);
-  } catch (err) {
-    res.status(400).json({ error: (err as Error).message });
-  }
-});
-
-/*
-OUTDATED - use decouple instead!
-Self-removal of a member from a chat (only the user themself)
-DELETE http://localhost:3000/api/chats/:chatId/self-remove/:userId
-Headers: Content-Type: application/json
-Body (raw JSON):
-{
-  "requesterUserId": 7 // Not included in URL because it is technically additonal info
-}
-*/
-router.delete("/:chatId/self-remove/:userId", async (req, res) => {
-  try {
-    const chatId = Number(req.params.chatId);
-    const userIdToRemove = Number(req.params.userId);
-    const { requesterUserId } = req.body as { requesterUserId: number };
-    await chatService.removeMember(chatId, userIdToRemove, requesterUserId);
-    res.status(200).json({ message: "Successfully removed!" });
-  } catch (err) {
-    res.status(400).json({ error: (err as Error).message });
-  }
 });
 
 /*
@@ -128,24 +75,24 @@ Body (raw JSON):
 }
 */
 router.put("/:chatId/decouple", requireAuth, async (req, res) => {
-  try {
-    const chatId = Number(req.params.chatId);
-    const userId = (req as AuthedRequest).userId;
-    if (!userId) {
-      return res.status(400).json({ error: "Missing required field: userId" });
-    }
+    try {
+        const chatId = Number(req.params.chatId);
+        const userId = (req as AuthedRequest).userId;
+        if (!userId) {
+            return res.status(400).json({error: "Missing required field: userId"});
+        }
 
-    const result = await chatService.decoupleUserFromChat(chatId, userId, 1);
-    res.status(200).json({
-      success: true,
-      message: result.chatDeleted
-        ? "User decoupled and chat deleted (no members left)"
-        : "User decoupled and messages pseudonymized",
-      ...result, // spread userDecoupled and chatDeleted flags
-     });
-  } catch (err: any) {
-    res.status(400).json({ error: err.message });
-  }
+        const result = await chatService.decoupleUserFromChat(chatId, userId, 1);
+        res.status(200).json({
+            success: true,
+            message: result.chatDeleted
+                ? "User decoupled and chat deleted (no members left)"
+                : "User decoupled and messages pseudonymized",
+            ...result, // spread userDecoupled and chatDeleted flags
+        });
+    } catch (err: any) {
+        res.status(400).json({error: err.message});
+    }
 });
 
 export default router;

@@ -1,12 +1,12 @@
-import { Outlet } from "react-router-dom";
+import {Outlet} from "react-router-dom";
 import Sidebar from "./Sidebar";
 
 export default function AuthedLayout() {
     return (
         <div className="authed-layout">
-            <Sidebar />
+            <Sidebar/>
             <div className="authed-content" role="main">
-                <Outlet />
+                <Outlet/>
             </div>
         </div>
     );

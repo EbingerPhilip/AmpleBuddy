@@ -1,5 +1,5 @@
-import { authFetch } from "../state/AuthFetch";
-import { loadSession } from "../state/AuthStorage";
+import {authFetch} from "../state/AuthFetch";
+import {loadSession} from "../state/AuthStorage";
 
 
 export type ChatMember = {
@@ -51,7 +51,8 @@ export async function apiGetMyChats(): Promise<{ userId: number; chats: Chat[] }
         try {
             const data = (await res.json()) as { error?: string };
             if (data?.error) msg = data.error;
-        } catch { /* empty */ }
+        } catch { /* empty */
+        }
         throw new Error(msg);
     }
 
@@ -91,6 +92,6 @@ export async function apiGetMyChats(): Promise<{ userId: number; chats: Chat[] }
 
     });
 
-    return { userId: session.userId, chats };
+    return {userId: session.userId, chats};
 }
 

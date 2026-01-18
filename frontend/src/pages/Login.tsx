@@ -1,10 +1,10 @@
-import { FormEvent, useId, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../state/AuthContext";
+import {FormEvent, useId, useState} from "react";
+import {useNavigate, Link} from "react-router-dom";
+import {useAuth} from "../state/AuthContext";
 
 export default function LoginPage() {
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const {login} = useAuth();
 
     const usernameId = useId();
     const passwordId = useId();
@@ -22,7 +22,7 @@ export default function LoginPage() {
 
         try {
             await login(username.trim(), password);
-            navigate("/home", { replace: true });
+            navigate("/home", {replace: true});
         } catch (err) {
             setError(err instanceof Error ? err.message : "Login failed.");
         } finally {
